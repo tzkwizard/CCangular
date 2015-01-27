@@ -1,0 +1,7 @@
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\bin\Debug\CC.Model.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\bin\Debug\CC.Model.pdb
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\bin\Debug\Newtonsoft.Json.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\bin\Debug\Newtonsoft.Json.xml
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\obj\Debug\CC.Model.csprojResolveAssemblyReference.cache
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\obj\Debug\CC.Model.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.Model\obj\Debug\CC.Model.pdb

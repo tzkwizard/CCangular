@@ -1,0 +1,16 @@
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\CC.DataAccess.dll.config
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\CC.DataAccess.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\CC.DataAccess.pdb
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\Breeze.ContextProvider.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\Breeze.ContextProvider.EF6.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\CC.Model.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\EntityFramework.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\Newtonsoft.Json.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\CC.Model.pdb
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\EntityFramework.xml
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\bin\Debug\Newtonsoft.Json.xml
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\obj\Debug\CC.DataAccess.csprojResolveAssemblyReference.cache
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\obj\Debug\CC.DataAccess.dll
+C:\Users\aotuo.zhang\Documents\Visual Studio 2013\Projects\cc\CC.DataAccess\obj\Debug\CC.DataAccess.pdb
