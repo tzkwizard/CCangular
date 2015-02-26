@@ -10,18 +10,65 @@
     app.config(['$routeProvider', 'routes', routeConfigurator]);
     function routeConfigurator($routeProvider, routes) {
 
+      /*  //TODO get rid of me 
+        $routeProvider.when('/invalid', {
+            templateUrl:'app/invalid.html'   
+            }
+            );*/
+
+
+         /* //TODO get rid of me 
+        $routeProvider.when('/pass', {
+            templateUrl: 'app/session/sessions.html',
+            resolve: {fake:fakeAllow}
+            }
+            );
+
+        fakeAllow.$inject = ['$q'];
+        function fakeAllow($q) {
+            var data = { x: 1 };
+            var defer = $q.defer();
+            defer.resolve(data);
+            return defer.promise;
+        }
+        $routeProvider.when('/fail', {
+            templateUrl: 'app/session/sessions.html',
+            resolve: { fake: fakeReject }
+        }
+             );
+
+        fakeReject.$inject = ['$q'];
+        function fakeReject($q) {
+            var data = { x: 1 };
+            var defer = $q.defer();
+            defer.reject({msg:'haha'});
+            return defer.promise;
+        }*/
+
         routes.forEach(function (r) {
-            $routeProvider.when(r.url, r.config);
+            //$routeProvider.when(r.url, r.config);
+            setRoute(r.url, r.config);
         });
         $routeProvider.otherwise({ redirectTo: '/' });
+        function setRoute(url, definition) {
+            definition.resolve = angular.extend(definition.resolve || {}, {
+                prime: prime
+            });
+
+            $routeProvider.when(url, definition);
+        }
     }
 
+    prime.$inject = ['datacontext'];
+    function prime(d) {
+        return d.prime();
+    }
     // Define the routes 
     function getRoutes() {
         return [
             {
                 url: '/',
-                config: {
+                config: {  
                     templateUrl: 'app/dashboard/dashboard.html',
                     title: 'dashboard',
                     settings: {

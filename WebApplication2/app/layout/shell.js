@@ -23,9 +23,22 @@
         };
 
         activate();
+        
+     /*   $rootScope.$on('$locationChangeStart',
+   function(event, current, previous)
+   {
+       var answer = $window.confirm('Leave?');
+
+       if(!answer)
+       {
+          event.preventDefault();
+           return;
+      }
+   });*/
+
 
         function activate() {
-            logSuccess('Hot Towel Angular loaded!', null, true);
+            logSuccess('Breezezz Angular loaded!', null, true);
             common.activateController([], controllerId);
         }
 
