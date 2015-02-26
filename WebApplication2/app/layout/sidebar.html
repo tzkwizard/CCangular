@@ -3,6 +3,17 @@
     <div class="sidebar-dropdown"><a href="#">Menu</a></div>
     <div class="sidebar-inner">
         <div class="sidebar-widget">
+            <form class="form-inline">
+                <div class="input-append row-fluid">
+                    <input type="text" class="form-control"
+                           data-ng-model="vm.searchText"
+                           data-ng-keyup="vm.search($event)"
+                           placeholder="Find sessions" />
+                    <button class="btn btn-info btn-notext" type="button" data-ng-click="vm.search($event)">
+                        <i class="fa fa-search"></i>
+                    </button>
+</div>
+            </form>
         </div>
         <ul class="navi">
             <li class="nlightblue fade-selection-animation" data-ng-class="vm.isCurrent(r)"
