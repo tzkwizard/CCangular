@@ -31,7 +31,9 @@
             getSessionPartials: getSessionPartials,
             getSpeakerPartials: getSpeakerPartials,
             prime: prime,
-            getAttendsPartials:getAttendsPartials
+            getAttendsPartials: getAttendsPartials,
+            getFilteredCount: getFilteredCount,
+            getAttendeeCount: getAttendeeCount
         };
 
         return service;
@@ -51,12 +53,17 @@
             return $q.when(people);
         }
 
-        function getAttendsPartials(forceRemote) {
+        function getAttendsPartials(forceRemote,page,size,nameFilter) {
             var Orderby = 'firstName,lastName';
             var attendees = [];
 
+            var take = size || 20;
+            var skip = page ? (page - 1) * size : 0;
+
             if (_areAttendeesLoad() && !forceRemote) {
-                attendees = _getAlllocal(entityNames.attendee, Orderby);
+                return $q.when(getByPage());
+
+                //attendees = _getAlllocal(entityNames.attendee, Orderby);
                 return $q.when(attendees);
             }
 
@@ -67,14 +74,61 @@
             .using(manager).execute()
             .then(querySucceeded, _queryFailed);
 
-            function querySucceeded(data) {
-                attendees = data.results;
-                _areAttendeesLoad(true);
-                log('Retrieved [Attendee Partials] from remote data source', attendees.length, true);
+
+            function getByPage() {
+                var predicate = null;
+                if (nameFilter) {
+                    predicate = _fullNamePredicate(nameFilter);
+                }
+                var attendees = EntityQuery.from(entityNames.attendee)
+                    .where(predicate)
+                    .take(take)
+                    .skip(skip)
+                    .orderBy(Orderby)
+                    .using(manager)
+                    .executeLocally();
                 return attendees;
             }
+
+
+            function querySucceeded(data) {
+                // attendees = data.results;
+
+                _areAttendeesLoad(true);
+                log('Retrieved [Attendee Partials] from remote data source', data.results.length, true);
+                return getByPage();
+            }
+        }
+        function getAttendeeCount() {
+            if (_areAttendeesLoad()) {
+                return $q.when(_getLocalEntityCount(entityNames.attendee));
+            }
+            return EntityQuery.from(entityNames.attendee)
+                .using(manager).execute()
+                .then(_getInlineCount);
+        }
+        function _getInlineCount() {
+            return datacontext.inlineCount;
+        }
+        function _getLocalEntityCount(resource) {
+            var entities = EntityQuery.from(resource)
+                                     .using(manager)
+                                      .executeLocally();
+            return entities.length;
         }
 
+        function getFilteredCount(nameFilter) {
+            var predicate = _fullNamePredicate(nameFilter);
+            var attendees = EntityQuery.from(entityNames.attendee)
+                   .where(predicate)
+                   .using(manager)
+                   .executeLocally();
+            return attendees.length;
+        }
+
+        function _fullNamePredicate(filterValue) {
+            return breeze.Predicate.create('firstName', 'contains', filterValue).or('lastName', 'contains', filterValue);
+        }
 
         function getSpeakerPartials(forceRemote) {
             var predicate = breeze.Predicate.create('isSpeaker', '==', true);
