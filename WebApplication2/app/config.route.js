@@ -47,10 +47,34 @@
                     templateUrl: 'app/session/sessions.html',
                     settings: {
                         nav: 3,
-                        content: '<i class="fa fa-calendar"></i> Sessions'
+                        content: '<i class="fa fa-calendar"></i> Sessions '
                     }
                 }
-            }
+             }
+             ,
+             {
+                 url: '/speakers',
+                 config: {
+                     title: 'speakers',
+                     templateUrl: 'app/speaker/speakers.html',
+                     settings: {
+                         nav: 4,
+                         content: '<i class="fa fa-key"></i> Speakers'  
+                     }
+                 }
+             }
+             ,
+             {
+                 url: '/attendees',
+                 config: {
+                     title: 'attendees',
+                     templateUrl: 'app/attendee/attendees.html',
+                     settings: {
+                         nav: 5,
+                         content: '<i class="fa fa-cab"></i> Attendees'
+                     }
+                 }
+             }
         ];
     }
 })();

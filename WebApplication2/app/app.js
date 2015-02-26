@@ -17,8 +17,8 @@
     ]);
     
     // Handle routing errors and success events
-    app.run(['$route','breeze', function ($route,breeze) {
+    app.run(['$route', 'breeze', 'datacontext', function ($route, breeze, datacontext) {
         // Include $route to kick start the router.
-        
-        }]);
+        datacontext.prime();
+    }]);
 })();

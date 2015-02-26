@@ -16,7 +16,8 @@
         
         vm.title = 'Sessions';
         vm.sessions = [];
-        vm.activate = activate;
+
+        vm.refresh = refresh;
         activate();
 
         function activate() {
@@ -24,10 +25,13 @@
             common.activateController(promises, controllerId)
                 .then(function () { log('Activated Sessions View'); });
         }
-        function getSessions(){
-            return datacontext.getSessionPartials().then(function (data) {
+        function getSessions(forceRefresh){
+            return datacontext.getSessionPartials(forceRefresh).then(function (data) {
               return vm.sessions = data;
         });
+        }
+        function refresh() {
+            getSessions(true);
         }
     }
 })();
