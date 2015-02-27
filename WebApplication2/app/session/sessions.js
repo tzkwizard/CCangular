@@ -41,8 +41,8 @@
             });
         }
         function getSessions(forceRefresh){
-            return datacontext.getSessionPartials(forceRefresh).then(function (data) {
-              return vm.sessions = data;
+            return datacontext.getSessionPartials(forceRefresh).then(function (data) {  
+                return vm.sessions = vm.filteredSessions = data;
         });
         }
         function refresh() {

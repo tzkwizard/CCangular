@@ -9,31 +9,94 @@
 
         var vm = this;
         vm.news = {
-            title: 'Hot Towel Angular',
-            description: 'Hot Towel Angular is a SPA template for Angular developers.'
+            title: 'Code Camp',
+            description: 'Code Camp is a community event where developers learn from fellow developers. All are welcome to attend and speak. Code Camp is free, by and for the deveoper community, and occurs on the weekends.'
         };
+
+        vm.attendeeCount = 0;
+        vm.speakerCount = 0;
+        vm.sessionCount = 0;
         vm.messageCount = 0;
-        vm.people = [];
+       // vm.people = [];
         vm.title = 'Dashboard';
+
+        vm.content = {
+            predicate: '',
+            reverse: false,
+            setSort: setContentSort,
+            title: 'Content',
+            tracks: []
+        };
+        vm.map = {
+            title: 'Location'
+        };
+
+        vm.speakers = {
+            interval: 5000,
+            list: [],
+            title: 'Top Speakers'
+        };
+
 
         activate();
 
         function activate() {
-                var promises = [getMessageCount(), getPeople()];
+            getSpeakerTopLocal();
+            var promises = [getMessageCount(), getAttendeeCount(), getSessionCount(), getSpeakerCount(), getTrackCounts()];
                 common.activateController(promises, controllerId)
                     .then(function () { log('Activated Dashboard View'); });
         }
-
+        
         function getMessageCount() {
             return datacontext.getMessageCount().then(function (data) {
                 return vm.messageCount = data;
             });
         }
+        function getAttendeeCount() {
+            return datacontext.getAttendeeCount().then(function (data) {                             
+                return vm.attendeeCount = data
+            //var attendee = datacontext.getAttendsPartials();
+            
+           // vm.attendeeCount = attendee.length;
+           
+       });
+        }
+        
+        function getSessionCount() {
+            return datacontext.getSessionCount().then(function (data) {
+                return vm.sessionCount = data;
+            });
+        }
 
-        function getPeople() {
+        function getTrackCounts() {
+           return datacontext.getTrackCounts().then(function (data) {
+                return vm.content.tracks = data;
+            });
+          
+        }
+
+
+        function getSpeakerTopLocal() {
+            vm.speakers.list = datacontext.getSpeakerTopLocal();
+        }
+
+
+        function getSpeakerCount() {
+            var speakers = datacontext.getSpeakerCountLocal();
+            vm.speakerCount = speakers.length;
+        }
+
+
+
+       /* function getPeople() {
             return datacontext.getPeople().then(function (data) {
                 return vm.people = data;
             });
+        }*/
+        function setContentSort(prop) {
+            vm.content.predicate = prop;
+            vm.content.reverse = !vm.content.reverse;
         }
+
     }
 })();

@@ -2,7 +2,7 @@
     'use strict';
 
     var controllerId = 'attendees';
-    angular
+    angular 
         .module('app')
         .controller(controllerId, ['common','config', 'datacontext', attendees]);
 
@@ -42,9 +42,13 @@
             }
         });
 
-        function getAttendeeCount() {
+
+       
+
+    function getAttendeeCount() {
             //return datacontext.getAttendeeCount().then(function (data) {
             return datacontext.getAttendeeCount().then(function (data) {
+                
                 return vm.attendeeCount = data;
             });
         }
