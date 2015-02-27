@@ -11,7 +11,7 @@
         'common',           // common functions, logger, spinner
         'common.bootstrap', // bootstrap dialog wrapper functions
 
-        // 3rd Party Modules
+        // 3rd Party Modules    
         'breeze.angular',
         'ui.bootstrap'      // ui-bootstrap (ex: carousel, pagination, dialog)
     ]);

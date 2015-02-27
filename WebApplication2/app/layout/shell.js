@@ -21,7 +21,7 @@
             trail: 100,
             color: '#F58A00'
         };
-
+        vm.showSplash = true;
         activate();
         
      /*   $rootScope.$on('$locationChangeStart',
@@ -39,7 +39,9 @@
 
         function activate() {
             logSuccess('Breezezz Angular loaded!', null, true);
-            common.activateController([], controllerId);
+            common.activateController([], controllerId).then(function() {
+                vm.showSplash = false;
+            });
         }
 
         function toggleSpinner(on) { vm.isBusy = on; }
