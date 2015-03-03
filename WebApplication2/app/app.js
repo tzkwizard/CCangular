@@ -13,13 +13,14 @@
 
         // 3rd Party Modules    
         'breeze.angular',
-        'ui.bootstrap'      // ui-bootstrap (ex: carousel, pagination, dialog)
+        'ui.bootstrap',   // ui-bootstrap (ex: carousel, pagination, dialog)    
+        'elasticsearch'
     ]);
     
     // Handle routing errors and success events
     app.run(['$route', 'breeze', 'datacontext', 'routeMediator', function ($route, breeze, datacontext, routeMediator) {
         // Include $route to kick start the router.
-        datacontext.prime();
+      // datacontext.prime();
         routeMediator.setRoutingHandlers();
     }]);
 })();

@@ -132,6 +132,18 @@
                      }
                  }
              }
+              ,
+             {
+                 url: '/els',
+                 config: {
+                     title: 'els',
+                     templateUrl: 'app/ELS/els.html',
+                     settings: {
+                         nav: 5,
+                         content: '<i class="fa fa-search"></i> ELS'
+                     }
+                 }
+             }
         ];
     }
 })();

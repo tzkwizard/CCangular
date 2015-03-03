@@ -1,7 +1,6 @@
-﻿
-<section class="mainbar" data-ng-controller="speakers as vm">
+﻿<section class="mainbar" data-ng-controller="speakers as vm">
     <section class="matter">
-        <div class="container-fluid">       
+        <div class="container-fluid">
             <div class="row">
                 <div class="form-search">
                     <input class="form-control search-query"
@@ -15,12 +14,12 @@
                         </a>
                     </div>
                 </div>
-            </div>       
+            </div>
             <div class="row">
                 <div class="widget wviolet">
                     <div data-cc-widget-header title="{{vm.title}}" subtitle="{{vm.filteredSpeakers.length}} / {{vm.speakers.length}}">></div>
                     <div class="widget-content user">
-                        <div class="padd list-flow" data-ng-repeat="a in vm.filteredSpeakers">
+                        <div class="padd list-flow fader-animation" data-ng-repeat="a in vm.filteredSpeakers">
                             <div class="user">
                                 <input ng-model="a.imageSource">
                                 <img data-cc-img-person="{{a.imageSource}}" class="img-thumbnail stacked" />
