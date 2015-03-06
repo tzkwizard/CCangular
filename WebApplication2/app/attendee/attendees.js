@@ -47,14 +47,14 @@
 
     function getAttendeeCount() {
             //return datacontext.getAttendeeCount().then(function (data) {
-            return datacontext.getAttendeeCount().then(function (data) {
+        return datacontext.attendee.getCount().then(function (data) {
                 
                 return vm.attendeeCount = data;
             });
         }
 
         function getAttendeeFilteredCount() {
-            vm.attendeeFilteredCount = datacontext.getFilteredCount(vm.attendeeSearch);
+            vm.attendeeFilteredCount = datacontext.attendee.getFilteredCount(vm.attendeeSearch);
         }
 
 
@@ -66,7 +66,7 @@
 
         }
         function getAttends(forceRefresh) {
-            return datacontext.getAttendsPartials(forceRefresh, vm.paging.currentPage, vm.paging.pageSize, vm.attendeeSearch).then(function (data) {
+            return datacontext.attendee.getAll(forceRefresh, vm.paging.currentPage, vm.paging.pageSize, vm.attendeeSearch).then(function (data) {
                 vm.attendees = data;
                 if (!vm.attendeeCount || forceRefresh) {
                     // Only grab the full count once or on refresh

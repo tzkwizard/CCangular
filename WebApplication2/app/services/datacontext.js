@@ -2,18 +2,19 @@
     'use strict';
         
     var serviceId = 'datacontext';  
-    angular.module('app').factory(serviceId, ['common','entityManagerFactory','model', datacontext]);
+    angular.module('app').factory(serviceId, ['common','entityManagerFactory','model', 'repositories', datacontext]);
 
-    function datacontext(common, emFactory,model) {
-        var EntityQuery = breeze.EntityQuery;
+    function datacontext(common, emFactory,model, repositories) {
+      //  var EntityQuery = breeze.EntityQuery;
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(serviceId);
-        var Predicate = breeze.Predicate;
+      //  var Predicate = breeze.Predicate;
         var logError = getLogFn(serviceId, 'error');
         var logSuccess = getLogFn(serviceId, 'success');
         var manager = emFactory.newManager();
         var $q = common.$q;
         var primePromise;
+        var repoNames = ['attendee', 'lookup', 'session', 'speaker'];
         var entityNames = model.entityNames;
 
         var storeMeta = {
@@ -26,21 +27,80 @@
         
 
         var service = {
-            getPeople: getPeople,
-            getMessageCount: getMessageCount,
-            getSessionPartials: getSessionPartials,
-            getSpeakerPartials: getSpeakerPartials,
             prime: prime,
+           getPeople: getPeople,
+            getMessageCount: getMessageCount,
+            /* getSessionPartials: getSessionPartials,
+            getSpeakerPartials: getSpeakerPartials,
             getAttendsPartials: getAttendsPartials,
             getFilteredCount: getFilteredCount,
             getAttendeeCount: getAttendeeCount,
             getSessionCount: getSessionCount,
             getSpeakerCountLocal: getSpeakerCountLocal,
             getSpeakerTopLocal: getSpeakerTopLocal,
-            getTrackCounts: getTrackCounts
+            getTrackCounts: getTrackCounts*/
         };
-
+        init();
         return service;
+        function init()
+        {            
+            repositories.init(manager);
+            defineLazyLoadedRepos();
+        }
+        // Add ES5 property to datacontext for each named repo
+        function defineLazyLoadedRepos()
+        {
+            repoNames.forEach(function(name)
+            {
+                Object.defineProperty(service, name, {
+                    configurable: true, // will redefine this property once
+                    get: function()
+                    {
+                        // The 1st time the repo is request via this property, 
+                        // we ask the repositories for it (which will inject it).
+                        var repo = repositories.getRepo(name);
+
+                        // Rewrite this property to always return this repo;
+                        // no longer redefinable
+                        Object.defineProperty(service, name, {
+                            value: repo,
+                            configurable: false,
+                            enumerable: true
+                        });
+
+                        return repo;
+                    }
+                });
+            });
+        }
+
+        function prime() {
+            if (primePromise) return primePromise;
+            primePromise = $q.all([service.lookup.getAll(), service.speaker.getPartials(true)])
+                .then(extendMetadata)
+                .then(success);
+            return primePromise;
+            function success() {
+                service.lookup.setLookups();
+                log("Primed data");
+            }
+            function extendMetadata() {
+                var metadataStore = manager.metadataStore;
+                var types = metadataStore.getEntityTypes();
+                types.forEach(function (type) {
+                    if (type instanceof breeze.EntityType) {
+                        set(type.shortName, type);
+                    }
+                });
+                var personEntityName = entityNames.person;
+                ['Speakers', 'Speaker', 'Attendees', 'Attendee'].forEach(function (r) {
+                    set(r, personEntityName);
+                });
+                function set(resourceName,entityName) {
+                    metadataStore.setEntityTypeForResourceName(resourceName,entityName);
+                }
+            }
+        }
 
         function getMessageCount() { return $q.when(72); }
 
@@ -57,7 +117,7 @@
             return $q.when(people);
         }
 
-        function getAttendsPartials(forceRemote,page,size,nameFilter) {
+        /*        function getAttendsPartials(forceRemote,page,size,nameFilter) {
             var Orderby = 'firstName,lastName';
             var attendees = [];
 
@@ -311,7 +371,7 @@
         function _areAttendeesLoad(value) {
             return _areItemsLoaded('attendees', value);
           
-        }
+            }
         function _areItemsLoaded(key, value) {
             if (value == undefined) {
             
@@ -320,7 +380,7 @@
           
             return storeMeta.isLoaded[key] = value; //set
         }
-
+*/
     }
 
 })();

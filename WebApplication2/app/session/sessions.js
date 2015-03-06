@@ -16,7 +16,7 @@
         var applyFilter = function () { };
         vm.filteredSessions = [];
         vm.search = search;
-        vm.sessionsSearch = $routeParams.search || '';
+        vm.sessionsSearch = $routeParams.searchvarible || '';
         var keyCodes = config.keyCodes;
         vm.sessionsFilter = sessionsFilter;
 
@@ -41,7 +41,7 @@
             });
         }
         function getSessions(forceRefresh){
-            return datacontext.getSessionPartials(forceRefresh).then(function (data) {  
+            return datacontext.session.getPartials(forceRefresh).then(function (data) {
                 return vm.sessions = vm.filteredSessions = data;
         });
         }

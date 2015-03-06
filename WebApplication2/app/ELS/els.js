@@ -4,7 +4,7 @@
     var controllerId = 'els';
 
     angular.module('app')
-     .controller(controllerId, function ($scope, common, client) {
+     .controller(controllerId, function ($scope,$location, common, client) {
 
 
        
@@ -15,9 +15,11 @@
          vm.search = search;
          vm.filter1 = filter1;
          vm.filter2 = filter2;
+        vm.changev = changev;
          vm.searchText = 'hello';
          vm.acount = 4;
-        vm.hits = "2";
+         vm.hits = "2";
+        vm.mystyle = { 'color': 'blue' };
         //var hits = hits;
          client.ping({
              requestTimeout: 1000,
@@ -31,6 +33,9 @@
              }
          });
 
+         function changev() {
+             $location.url('/sessions');    
+         }
 
 
          function search(searchText) {

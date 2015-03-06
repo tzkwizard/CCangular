@@ -7,17 +7,21 @@
     app.constant('routes', getRoutes());
     
     // Configure the routes and route resolvers
-    app.config(['$routeProvider', 'routes', routeConfigurator]);
-    function routeConfigurator($routeProvider, routes) {
+    app.config(['$routeProvider', 'routes', '$locationProvider', routeConfigurator]);
+    function routeConfigurator($routeProvider, routes, $locationProvider) {
 
-      /*  //TODO get rid of me 
+
+     /*   $locationProvider.html5Mode({
+            enabled: true,
+           
+        });
+       //TODO get rid of me 
         $routeProvider.when('/invalid', {
-            templateUrl:'app/invalid.html'   
+            templateUrl:'/app/els/els.html'   
             }
             );*/
 
-
-         /* //TODO get rid of me 
+       /*   //TODO get rid of me 
         $routeProvider.when('/pass', {
             templateUrl: 'app/session/sessions.html',
             resolve: {fake:fakeAllow}
@@ -46,7 +50,7 @@
         }*/
 
         routes.forEach(function (r) {
-            //$routeProvider.when(r.url, r.config);
+           // $routeProvider.when(r.url, r.config);
             setRoute(r.url, r.config);
         });
         $routeProvider.otherwise({ redirectTo: '/' });
@@ -100,7 +104,7 @@
              }
              ,
               {
-                  url: '/sessions/search/:search',
+                  url: '/sessions/search/:searchvarible',
                   config: {
                       title: 'sessions-search',
                       templateUrl: 'app/session/sessions.html',
@@ -139,11 +143,17 @@
                      title: 'els',
                      templateUrl: 'app/ELS/els.html',
                      settings: {
-                         nav: 5,
+                         nav: 6,
                          content: '<i class="fa fa-search"></i> ELS'
                      }
                  }
              }
         ];
     }
+
+    /*app.use(function (req, res) {
+        res.sendfile(__dirname + '/Public/index.html');
+    });*/
+    
+
 })();

@@ -53,7 +53,7 @@
             });
         }
         function getAttendeeCount() {
-            return datacontext.getAttendeeCount().then(function (data) {                             
+            return datacontext.attendee.getCount().then(function (data) {
                 return vm.attendeeCount = data
             //var attendee = datacontext.getAttendsPartials();
             
@@ -63,13 +63,13 @@
         }
         
         function getSessionCount() {
-            return datacontext.getSessionCount().then(function (data) {
+            return datacontext.session.getCount().then(function (data) {
                 return vm.sessionCount = data;
             });
         }
 
         function getTrackCounts() {
-           return datacontext.getTrackCounts().then(function (data) {
+            return datacontext.session.getTrackCounts().then(function (data) {
                 return vm.content.tracks = data;
             });
           
@@ -77,12 +77,12 @@
 
 
         function getSpeakerTopLocal() {
-            vm.speakers.list = datacontext.getSpeakerTopLocal();
+            vm.speakers.list = datacontext.speaker.getTopLocal();
         }
 
-
+            
         function getSpeakerCount() {
-            var speakers = datacontext.getSpeakerCountLocal();
+            var speakers = datacontext.speaker.getAllLocal();
             vm.speakerCount = speakers.length;
         }
 
