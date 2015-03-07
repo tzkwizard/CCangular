@@ -1,4 +1,9 @@
 ﻿(function () {
+
+    google.setOnLoadCallback(function () {
+        angular.bootstrap(document.body, ['app']);
+    });
+    google.load('visualization', '1', { packages: ['corechart'] });
     'use strict';
     
     var app = angular.module('app', [
@@ -15,8 +20,8 @@
         // 3rd Party Modules    
         'breeze.angular',
         'ui.bootstrap',   // ui-bootstrap (ex: carousel, pagination, dialog)    
-        'elasticsearch',
-       
+        'elasticsearch'
+      //  "google-chart"
         
     ]);
     

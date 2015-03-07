@@ -2,26 +2,50 @@
     <section class="matter">
         <div class="container-fluid">
             <div class="row-fluid">
-                <span class="span3">
+                <!--<span class="span3">
                     <input class="input-block-level" data-ng-model="vm.fi" type="text">
-                </span>&nbsp;
-                <button data-ng-click="vm.changev()" class="btn" type="button">Search</button>
+                </span>&nbsp;-->
             </div>
             <div class="input-append row-fluid">
                 <input type="text" class="form-control"
-                       data-ng-model="searchText"                      
-                       placeholder="  Find sessions" />
+                       data-ng-model="searchText"
+                       placeholder="  Search"/>
                 <button class="btn btn-info btn-notext" type="button" data-ng-click="vm.search(searchText)">
                     <i class="fa fa-search"> Search </i>
                 </button>
-                <h2 data-ng-style="vm.mystyle">amount:</h2>
+                <select ng-model="vm.aggName" class="input-medium">
+                    <option selected value="ip">ip</option>
+                    <option selected vaule="username">username</option>
+                    <option selected vaule="response">response</option>
+                    <option selected vaule="message">message</option>
+                </select>
+                <button data-ng-click="vm.changev(vm.aggName)" class="btn btn-info btn-notext" type="button">
+                    <i class="fa fa-pie-chart">Show</i>
+                </button>
+                <input type="text" size="8"
+                       data-ng-model="vm.fi"
+                       placeholder="  Filter " />
+            </div>
+
+            <div google-chart="PieChart" data-ng-model="data1" class="bigGraph"></div>
+            <div google-chart="BarChart" ng-model="data2" class="mediumGraph"></div>
+            <div google-chart="LineChart" ng-model="data3" class="smallGraph"></div>
+            <div id="dashboard_div">
+                <!--Divs that will hold each control and chart-->
+                <div id="filter_div"></div>
+                <div id="chart_div" class="bigGraph"></div>
             </div>
             <div class="row-fluid">
-                <div class="padd list-flow fader-animation">
-                    <div data-ng-repeat="doc in vm.hits">
-                        {{doc|json}}
-                    </div>
+                <h2 data-ng-style="vm.mystyle">amount:----------------------------------------------</h2>
+                <div data-ng-repeat="doc in vm.hits.buckets">
+                    <h2>key: {{doc.key}} --- count: {{doc.doc_count}}</h2>
+                </div>
             </div>
+        </div>
+        <div data-ng-repeat="doc in vm.hitSearch">
+            {{doc}}  <br>
         </div>
     </section>
 </section>
+
+
