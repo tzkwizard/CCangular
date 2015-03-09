@@ -346,6 +346,10 @@
                 }
             }
 
+
+
+
+
             function getOptions() {
                 return $.extend({}, getDefaults(), toastr.options);
             }

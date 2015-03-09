@@ -14,6 +14,7 @@
                     <i class="fa fa-search"> Search </i>
                 </button>
                 <select ng-model="vm.aggName" class="input-medium">
+                    <option selected value="all">all</option>
                     <option selected value="ip">ip</option>
                     <option selected vaule="username">username</option>
                     <option selected vaule="response">response</option>
@@ -24,9 +25,24 @@
                 </button>
                 <input type="text" size="8"
                        data-ng-model="vm.fi"
-                       placeholder="  Filter " />
+                       placeholder="  Filter "/>
+                <select ng-model="vm.filterAggName" class="input-medium">
+                    <option selected value="all">all</option>
+                    <option selected value="ip">ip</option>
+                    <option selected vaule="username">username</option>
+                    <option selected vaule="response">response</option>
+                    <option selected vaule="message">message</option>
+                </select>
+                <button data-ng-click="vm.test(searchText)" class="btn btn-info btn-notext" type="button">
+                    <i class="fa fa-pie-chart">Test</i>
+                </button>
             </div>
-
+            <select ng-model="vm.pagecount" class="input-medium">
+                <option selected value=10>10</option>
+                <option selected value=25>25</option>
+                <option selected vaule=50>50</option>
+                <option selected vaule=100>100</option>
+            </select>
             <div google-chart="PieChart" data-ng-model="data1" class="bigGraph"></div>
             <div google-chart="BarChart" ng-model="data2" class="mediumGraph"></div>
             <div google-chart="LineChart" ng-model="data3" class="smallGraph"></div>
@@ -42,9 +58,72 @@
                 </div>
             </div>
         </div>
-        <div data-ng-repeat="doc in vm.hitSearch">
-            {{doc}}  <br>
+      <!--  <div data-ng-repeat="doc in vm.hitSearch">
+            {{doc._source.ip}} <br>
+
+        </div>-->
+
+        <table class="table table-striped table-condensed table-hover">
+            <thead>
+
+                <tr>
+                    <th class="ip" custom-sort order="'ip'" sort="sort">Ip&nbsp;</th>
+                    <th class="username" custom-sort order="'username'" sort="sort">UserName&nbsp;</th>
+                    <th class="response" custom-sort order="'response'" sort="sort">Response&nbsp;</th>
+                    <th class="message" custom-sort order="'message'" sort="sort">Message&nbsp;</th>
+
+                </tr>
+            </thead>
+            <tfoot>
+            <td colspan="6">
+                <div class="pagination pull-right">
+                    <ul>
+                        <li ng-class="{disabled: currentPage == 0}">
+                            <a href ng-click="prevPage()">« Prev</a>
+                        </li>
+
+                        <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap) "
+                            ng-class="{active: n == currentPage}"
+                            ng-click="setPage()">
+                            <a href ng-bind="n + 1">1</a>
+                        </li>
+
+                        <li ng-class="{disabled: (currentPage) == pagedItems.length - 1}">
+                            <a href ng-click="nextPage()">Next »</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+            </tfoot>
+
+
+            <tbody>
+                <tr data-ng-repeat="doc in vm.hitSearch | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.test(doc,searchText)">
+                    <td>{{doc._source.ip}}</td>
+                    <td>{{doc._source.username}}</td>
+                    <td>{{doc._source.response}}</td>
+                    <td>{{doc._source.message}}</td>
+                </tr>
+            </tbody>
+            <pre>currentPage: {{sort|json}}</pre>
+        </table>
+
+        <div class="widget-foot">
+            <div class="clearfix"></div>
+            <pagination boundary-links="true"
+                        total-items="vm.attendeeFilteredCount"
+                        items-per-page="vm.paging.pageSize"
+                        data-ng-model="vm.paging.currentPage"
+                        data-ng-change="vm.pageChanged()"
+                        max-size="vm.paging.maxPagesToShow"
+                        class="pagination-sm"
+                        previous-text="Prev"
+                        next-text="Next"
+                        first-text="First"
+                        last-text="Last"></pagination>
+            <div class="clearfix"></div>
         </div>
+
     </section>
 </section>
 
