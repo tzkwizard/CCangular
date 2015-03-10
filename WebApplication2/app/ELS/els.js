@@ -8,6 +8,7 @@
 
 
             var vm = this;
+           vm.title = "Elasticsearch";
             //variable
             vm.fi = "";
             var getLogFn = common.logger.getLogFn;
@@ -19,10 +20,24 @@
             vm.total = 0;
             vm.mystyle = { 'color': 'blue' };
             vm.aggName = "";
-            vm.type = "";
+            vm.type = 'log';
             vm.filterAggName = "";
-            vm.pagecount = 100;
-        vm.fieldName = {};
+            vm.pagecount = 10;
+            vm.indices = ['logs', 'logsd'];           
+            vm.total = "";
+           
+            vm.paging = {
+                currentPage: 1,
+                maxPagesToShow: 5,
+                pageSize: 8
+            };
+
+            Object.defineProperty(vm.paging, 'pageCount', {
+                get: function () {
+                    return Math.floor(vm.total / vm.paging.pageSize) + 1;
+                }
+            });
+
         //function
             vm.search = search;
             vm.mSearch = mSearch;
@@ -33,19 +48,69 @@
             vm.test = test;
             vm.stringSearch = stringSearch;
             activate();
+            vm.f = f;
+            vm.pageChanged = pageChanged;
+            vm.getresult = getresult;
 
-            function test(doc, searchText) {
-                client.search({
-                    index: 'logsd',
+            function getresult(res) {
+                vm.res = [];
+                vm.j = 0;
+                vm.pagenumber = vm.paging.pageSize * vm.paging.currentPage;
+                if (vm.pagenumber > vm.total)
+                    vm.pagenumber = vm.total;
+                for (vm.i = (vm.paging.currentPage - 1) * vm.paging.pageSize; vm.i < vm.pagenumber; vm.i++) {
+                    vm.res[vm.j] = res[vm.i];
+                    vm.j++;
+                }
+            }
+
+
+
+            function pageChanged() {
+                log("1");
+                vm.getresult(vm.hitSearch);
+                log("2");
+            }
+         
+   
+
+
+
+            function f(doc) {
+                if (doc.mapping === "")
+                    return doc.full_name;
+                return "";
+            }
+            function test(searchText) {
+              /*  client.search({
+                    index: vm.indices,
                     type: 'log',
                     size: vm.pagecount,
-                    body: ejs.Request().
-                         filter(ejs.NumericRangeFilter("response").gt(202).lt(205))
+                    body: ejs.Request()
+                    //.query(ejs.MatchQuery("message", searchText).zeroTermsQuery("all"))
+                    //.query(ejs.BoolQuery().must(ejs.MatchQuery("message", searchText)).mustNot(ejs.MatchQuery("message", "java")))
+                    //  .query(ejs.BoostingQuery(ejs.MultiMatchQuery(["username", "response", "message", "ip"], searchText), ejs.MatchQuery("message", "java"), 0.2))
+                    //   .query(ejs.CommonTermsQuery("message", searchText).cutoffFrequency(0.01).highFreqOperator("and").minimumShouldMatchLowFreq(2))
+                       .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
                 }).then(function (resp) {
                     vm.hitSearch = resp.hits.hits;
                 }, function (err) {
                     log(err.message);
+                });*/
+
+
+                client.indices.getFieldMapping({
+                    local: true,
+                    index: 'logs',
+                    type: 'log',
+                    field: '*'
+                }).then(function (resp) {
+                    vm.hitSearch = resp.logs.mappings.log;
+                   
+                }, function (err) {
+                    log(err.message);
                 });
+
                 //toastr.info(doc._source.ip + "\r\n" + doc._source.username);
             }
 
@@ -61,8 +126,8 @@
 
             function init() {
                 client.search({
-                        index: 'logs',
-                        type: 'log',
+                       index: vm.indices,
+                       type: vm.type,
                         size: vm.pagecount,
                         body: {
                             query: {
@@ -72,6 +137,10 @@
                     }
                 ).then(function(resp) {
                     vm.hitSearch = resp.hits.hits;
+
+                    vm.total = resp.hits.total < vm.pagecount?resp.hits.total:vm.pagecount;  
+                    vm.getresult(vm.hitSearch);
+                    log('Loaded sample document');
                 }, function(err) {
                     log(err.message);
                 });
@@ -81,27 +150,31 @@
             function changev(aggName) {
                 client.search({
                     index: 'logs',
-                    type: 'log',
+                    type: vm.type,
                     body: {
                         "aggs": {
                             "myagg1": {
                                 "terms": {
-                                    "field": "ip"
+                                    "field": "ip",
+                                    "size": 10
                                 }
                             },
                             "myagg2": {
                                 "terms": {
-                                    "field": "username"
+                                    "field": "username",
+                                    "size": 10
                                 }
                             },
                             "myagg3": {
                                 "terms": {
-                                    "field": "response"
+                                    "field": "response",
+                                    "size": 10
                                 }
                             },
                             "myagg4": {
                                 "terms": {
-                                    "field": "message"
+                                    "field": "message",
+                                     "size":10
                                 }
                             }
                         }
@@ -136,9 +209,9 @@
 
 
             function search(searchText) {
-                if (searchText == undefined) {
+                if (searchText == undefined||searchText==="") {
                     log("input text");
-                    searchText = "";
+                    init();
                 }
                 if (vm.aggName === "" || vm.aggName === "all") {
                    // mSearch(searchText); 
@@ -151,7 +224,7 @@
              }
              client.search({
                  index: 'logs',
-                 type: 'log',
+                 type: vm.type,
                  size: vm.pagecount,
                  body: ejs.Request()
                      .query(ejs.MatchQuery(vm.aggName, searchText))
@@ -159,6 +232,12 @@
   
              }).then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
+
+                 if (resp.hits.total > vm.pagecount)
+                 { vm.total = vm.pagecount;}
+                 else
+                { vm.total=resp.hits.total;}
+                 vm.getresult(vm.hitSearch);
              }, function (err) {
                  log(err.message);
              });
@@ -168,7 +247,7 @@
          function searchWithoutFilter(searchText) {
              client.search({
                  index: 'logs',
-                 type: 'log',
+                 type: vm.type,
                  size: vm.pagecount,
                  body: ejs.Request()
                      .query(ejs.MatchQuery(vm.aggName, searchText))
@@ -227,7 +306,17 @@
             }, function (err) {
                 log(err.message);
             });
-
+            client.search({
+                index: 'logsd',
+                type: 'log',
+                size: vm.pagecount,
+                body: ejs.Request().
+                     filter(ejs.NumericRangeFilter("response").gt(202).lt(205))
+            }).then(function (resp) {
+                vm.hitSearch = resp.hits.hits;
+            }, function (err) {
+                log(err.message);
+            });
          }
 
 
@@ -236,7 +325,7 @@
          function mSearch(searchText) {
              client.search({
                  index: 'logs',
-                 type: 'log',
+                 type: vm.type,
                  size: 100,
                  body: {
                      query: {
@@ -275,13 +364,15 @@
 
          function stringSearch(searchText) {
             client.search({
-                index: 'logs',
-                type: 'log',
+                index: vm.indices,
+                type: vm.type,
                 size: vm.pagecount,
                 body: ejs.Request()
                     .query(ejs.QueryStringQuery(searchText))
             }).then(function (resp) {
                 vm.hitSearch = resp.hits.hits;
+                vm.total = resp.hits.total;
+                vm.getresult(vm.hitSearch);
             }, function (err) {
                 log(err.message);
             });
@@ -294,7 +385,7 @@
              if (error) {
                  log('elasticsearch cluster is down!');
              } else {
-                 log('All is well');
+                 log('elasticsearch cluster is connected');
              }
          });
 
@@ -345,16 +436,41 @@
                  }
              });
 
+             //table
+
+             var table = new google.visualization.ChartWrapper({
+                 'chartType': 'Table',
+                 'containerId': 'chart2',
+                 'options': {
+                     'width': '300px'
+                 }
+             });
+             
              // Establish dependencies, declaring that 'filter' drives 'pieChart',
              // so that the pie chart will only display entries that are let through
              // given the chosen slider range.
-             dashboard.bind(donutRangeSlider, pieChart);
+             dashboard.bind(donutRangeSlider, [pieChart,table]);
 
              // Draw the dashboard.
              dashboard.draw(data);
          }
 
+         function drawTable() {
+             var data = new google.visualization.DataTable();
+             data.addColumn('string', 'Name');
+             data.addColumn('number', 'Salary');
+             data.addColumn('boolean', 'Full Time Employee');
+             data.addRows([
+               ['Mike', { v: 10000, f: '$10,000' }, true],
+               ['Jim', { v: 8000, f: '$8,000' }, false],
+               ['Alice', { v: 12500, f: '$12,500' }, true],
+               ['Bob', { v: 7000, f: '$7,000' }, true]
+             ]);
 
+             var table = new google.visualization.Table(document.getElementById('table_div'));
+
+             table.draw(data, { showRowNumber: true });
+         }
 
          /* $scope.data1.dataTable.addColumn("string", "Name");
         $scope.data1.dataTable.addColumn("number", "Qty");

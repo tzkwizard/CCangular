@@ -65,7 +65,7 @@
 
     prime.$inject = ['datacontext'];
     function prime(d) {
-        return d.prime();
+       return d.prime();
     }
     // Define the routes 
     function getRoutes() {

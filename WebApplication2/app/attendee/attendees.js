@@ -27,7 +27,7 @@
         vm.paging = {
             currentPage: 1,
             maxPagesToShow: 5,
-            pageSize: 15
+            pageSize: 25
         };
         vm.pageChanged = pageChanged;
 
