@@ -38,7 +38,7 @@
 
 
         function activate() {
-            logSuccess('Breezezz Angular loaded!', null, true);
+           // logSuccess('Breezezz Angular loaded!', null, true);
             common.activateController([], controllerId).then(function() {
                 vm.showSplash = false;
             });

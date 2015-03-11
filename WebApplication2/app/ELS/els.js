@@ -4,11 +4,11 @@
     var controllerId = 'els';
 
     angular.module('app')
-        .controller(controllerId, function($scope, $location, common, client) {
+        .controller(controllerId, function($scope, $location, common, client, datasearch) {
 
 
             var vm = this;
-           vm.title = "Elasticsearch";
+            vm.title = "Elasticsearch";
             //variable
             vm.fi = "";
             var getLogFn = common.logger.getLogFn;
@@ -20,25 +20,27 @@
             vm.total = 0;
             vm.mystyle = { 'color': 'blue' };
             vm.aggName = "";
-            vm.type = 'log';
+            vm.type = 'logs';
             vm.filterAggName = "";
-            vm.pagecount = 10;
-            vm.indices = ['logs', 'logsd'];           
+            vm.pagecount = 100;
+            vm.indices = ['logs', 'logsd'];
             vm.total = "";
-           
+            vm.fieldname = [];
+            vm.indexName = [];
+            vm.t = [];
             vm.paging = {
                 currentPage: 1,
                 maxPagesToShow: 5,
                 pageSize: 8
             };
-
+       
             Object.defineProperty(vm.paging, 'pageCount', {
-                get: function () {
+                get: function() {
                     return Math.floor(vm.total / vm.paging.pageSize) + 1;
                 }
             });
 
-        //function
+            //function
             vm.search = search;
             vm.mSearch = mSearch;
             vm.changev = changev;
@@ -48,11 +50,26 @@
             vm.test = test;
             vm.stringSearch = stringSearch;
             activate();
-            vm.f = f;
-            vm.pageChanged = pageChanged;
-            vm.getresult = getresult;
 
-            function getresult(res) {
+            vm.pageChanged = pageChanged;
+            vm.getCurrentPageData = getCurrentPageData;
+            vm.getFieldName = getFieldName;
+            vm.getIndexName = getIndexName;
+
+
+
+            vm.showModal = false;
+            vm.toggleModal = toggleModal;
+
+            function toggleModal() {
+                vm.showModal = !vm.showModal;
+            }
+     
+
+
+
+
+            function getCurrentPageData(res) {
                 vm.res = [];
                 vm.j = 0;
                 vm.pagenumber = vm.paging.pageSize * vm.paging.currentPage;
@@ -64,85 +81,120 @@
                 }
             }
 
-
-
             function pageChanged() {
-                log("1");
-                vm.getresult(vm.hitSearch);
-                log("2");
+                vm.getCurrentPageData(vm.hitSearch);
             }
-         
-   
 
 
-
-            function f(doc) {
-                if (doc.mapping === "")
-                    return doc.full_name;
-                return "";
-            }
             function test(searchText) {
-              /*  client.search({
+                /* client.search({
                     index: vm.indices,
                     type: 'log',
                     size: vm.pagecount,
                     body: ejs.Request()
                     //.query(ejs.MatchQuery("message", searchText).zeroTermsQuery("all"))
-                    //.query(ejs.BoolQuery().must(ejs.MatchQuery("message", searchText)).mustNot(ejs.MatchQuery("message", "java")))
+                    .query(ejs.BoolQuery().must(ejs.MatchQuery("message", searchText)).mustNot(ejs.MatchQuery("message", "java")))
                     //  .query(ejs.BoostingQuery(ejs.MultiMatchQuery(["username", "response", "message", "ip"], searchText), ejs.MatchQuery("message", "java"), 0.2))
                     //   .query(ejs.CommonTermsQuery("message", searchText).cutoffFrequency(0.01).highFreqOperator("and").minimumShouldMatchLowFreq(2))
-                       .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
+                     //  .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
                 }).then(function (resp) {
                     vm.hitSearch = resp.hits.hits;
+                    vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
+                    vm.getCurrentPageData(vm.hitSearch);
                 }, function (err) {
                     log(err.message);
                 });*/
-
-
-                client.indices.getFieldMapping({
-                    local: true,
-                    index: 'logs',
-                    type: 'log',
-                    field: '*'
+                client.indices.exists({
+                    index: 'logs'
                 }).then(function (resp) {
-                    vm.hitSearch = resp.logs.mappings.log;
-                   
+                    vm.hitSearch = resp;
                 }, function (err) {
                     log(err.message);
                 });
 
-                //toastr.info(doc._source.ip + "\r\n" + doc._source.username);
+              toastr.info( "\r\n" );
+            }
+            
+
+            function getIndexName() {               
+                gett();
+                geti();        
+                function gett() {
+                    vm.j = 0;  
+                 vm.x = 'logstash-';
+                 for (vm.i = 0; vm.i < 144; vm.i++) {
+                     vm.y = new Date(2015, 2, 10 + vm.i);
+                     vm.t[vm.j] = vm.x + vm.y.getFullYear() + "." + ('0' + vm.y.getMonth()).slice(-2) + "." + ('0' + vm.y.getDate()).slice(-2);
+                     vm.j++;
+                 }
+             }
+             function geti() {
+                 vm.j = 0;
+                 vm.z = 0;
+                 vm.i = 0;
+                 for (vm.i = 0; vm.i < 144; vm.i++) {
+                     client.indices.exists({
+                         index: vm.t[vm.i]
+                     }).then(function(resp) {
+                         if (resp) {
+                             vm.indexName[vm.j] = vm.t[vm.z];
+                             vm.j++;
+                             log(vm.z);
+                         }
+                         vm.z++;
+                     }, function(err) {
+                         log(err.message);
+                     });
+                    
+                 }
+             }
+            }
+      
+             
+
+            function getFieldName() {
+
+                client.indices.getFieldMapping({
+                    index: 'logs',
+                    type: 'log',
+                    field: '*'
+                }).then(function (resp) {
+                    vm.map = resp.logs.mappings.log;
+                    vm.j = 0;
+                    vm.res2 = [];
+                    angular.forEach(vm.map, function (name) {
+                        if (name.full_name.substring(0, 1) !== '_' && name.full_name !== 'constant_score.filter.exists.field') {
+                            vm.fieldname[vm.j] = name.full_name;
+                            vm.j++;
+                        }
+                    }
+                    );
+                }, function (err) {
+                    log(err.message);
+                });
+       
             }
 
+           
+
             function activate() {
-                common.activateController([], controllerId)
-                    .then(function() {
-                        init();
+                common.activateController([getIndexName(), getFieldName()], controllerId)
+                    .then(function () {
+                         init();
                         log('Activated ELS search View');
                         google.setOnLoadCallback(drawDashboard);
 
                     });
             }
+         
+
 
             function init() {
-                client.search({
-                       index: vm.indices,
-                       type: vm.type,
-                        size: vm.pagecount,
-                        body: {
-                            query: {
-                                "match_all": {}
-                            }
-                        }
-                    }
-                ).then(function(resp) {
+                datasearch.getSampledata(vm.indexName,vm.type, vm.pagecount).then(function (resp) {
                     vm.hitSearch = resp.hits.hits;
-
                     vm.total = resp.hits.total < vm.pagecount?resp.hits.total:vm.pagecount;  
-                    vm.getresult(vm.hitSearch);
+                    vm.getCurrentPageData(vm.hitSearch);
                     log('Loaded sample document');
-                }, function(err) {
-                    log(err.message);
                 });
             }
 
@@ -209,6 +261,7 @@
 
 
             function search(searchText) {
+                getIndexName();
                 if (searchText == undefined||searchText==="") {
                     log("input text");
                     init();
@@ -222,22 +275,11 @@
                  vm.searchWithoutFilter(searchText);
                  return;
              }
-             client.search({
-                 index: 'logs',
-                 type: vm.type,
-                 size: vm.pagecount,
-                 body: ejs.Request()
-                     .query(ejs.MatchQuery(vm.aggName, searchText))
-                    .filter(ejs.TermFilter(vm.filterAggName, vm.fi))
-  
-             }).then(function (resp) {
+             datasearch.basicSearch(vm.indices, vm.type, vm.pagecount, vm.aggName, searchText, vm.filterAggName, vm.fi)
+            .then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
-
-                 if (resp.hits.total > vm.pagecount)
-                 { vm.total = vm.pagecount;}
-                 else
-                { vm.total=resp.hits.total;}
-                 vm.getresult(vm.hitSearch);
+                 vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
+                 vm.getCurrentPageData(vm.hitSearch);
              }, function (err) {
                  log(err.message);
              });
@@ -245,14 +287,10 @@
          }
       
          function searchWithoutFilter(searchText) {
-             client.search({
-                 index: 'logs',
-                 type: vm.type,
-                 size: vm.pagecount,
-                 body: ejs.Request()
-                     .query(ejs.MatchQuery(vm.aggName, searchText))
-             }).then(function (resp) {
+             datasearch.searchWithoutFilter(vm.indices, vm.type, vm.pagecount,vm.aggName ,searchText).then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
+                 vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
+                 vm.getCurrentPageData(vm.hitSearch);
              }, function (err) {
                  log(err.message);
              });
@@ -363,16 +401,10 @@
 
 
          function stringSearch(searchText) {
-            client.search({
-                index: vm.indices,
-                type: vm.type,
-                size: vm.pagecount,
-                body: ejs.Request()
-                    .query(ejs.QueryStringQuery(searchText))
-            }).then(function (resp) {
+             datasearch.stringSearch(vm.indices, vm.type, vm.pagecount,searchText).then(function (resp) {
                 vm.hitSearch = resp.hits.hits;
-                vm.total = resp.hits.total;
-                vm.getresult(vm.hitSearch);
+                vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
+                vm.getCurrentPageData(vm.hitSearch);
             }, function (err) {
                 log(err.message);
             });
@@ -455,46 +487,7 @@
              dashboard.draw(data);
          }
 
-         function drawTable() {
-             var data = new google.visualization.DataTable();
-             data.addColumn('string', 'Name');
-             data.addColumn('number', 'Salary');
-             data.addColumn('boolean', 'Full Time Employee');
-             data.addRows([
-               ['Mike', { v: 10000, f: '$10,000' }, true],
-               ['Jim', { v: 8000, f: '$8,000' }, false],
-               ['Alice', { v: 12500, f: '$12,500' }, true],
-               ['Bob', { v: 7000, f: '$7,000' }, true]
-             ]);
-
-             var table = new google.visualization.Table(document.getElementById('table_div'));
-
-             table.draw(data, { showRowNumber: true });
-         }
-
-         /* $scope.data1.dataTable.addColumn("string", "Name");
-        $scope.data1.dataTable.addColumn("number", "Qty");
-         $scope.data1.dataTable.addRow(["Test", 1]);
-        $scope.data1.dataTable.addRow(["Test2", 2]);
-        $scope.data1.dataTable.addRow(["Test3", 3]);
-        $scope.data1.title = "My Pie";
-
-        $scope.data2 = {};
-        $scope.data2.dataTable = new google.visualization.DataTable();
-       $scope.data2.dataTable.addColumn("string", "Name");
-       $scope.data2.dataTable.addColumn("number", "Qty");
-        $scope.data2.dataTable.addRow(["Test", 1]);
-        $scope.data2.dataTable.addRow(["Test2", 2]);
-        $scope.data2.dataTable.addRow(["Test3", 3]);
-
-
-        $scope.data3 = {};
-        $scope.data3.dataTable = new google.visualization.DataTable();
-       $scope.data3.dataTable.addColumn("string", "Name");
-       $scope.data3.dataTable.addColumn("number", "Qty");
-        $scope.data3.dataTable.addRow(["Test", 1]);
-        $scope.data3.dataTable.addRow(["Test2", 2]);
-        $scope.data3.dataTable.addRow(["Test3", 3]);*/
+        
 
 
 

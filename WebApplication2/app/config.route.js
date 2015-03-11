@@ -65,13 +65,13 @@
 
     prime.$inject = ['datacontext'];
     function prime(d) {
-       return d.prime();
+       //return d.prime();
     }
     // Define the routes 
     function getRoutes() {
         return [
             {
-                url: '/',
+                url: '/dashboard',
                 config: {  
                     templateUrl: 'app/dashboard/dashboard.html',
                     title: 'dashboard',
@@ -81,7 +81,7 @@
                     }
                 }
             }, {
-                url: '/admin',
+                url: '/',
                 config: {
                     title: 'admin',
                     templateUrl: 'app/admin/admin.html',
@@ -145,6 +145,16 @@
                      settings: {
                          nav: 6,
                          content: '<i class="fa fa-search"></i> ELS'
+                     }
+                 }
+             },{
+                 url: '/aggs',
+                 config: {
+                     title: 'aggs',
+                     templateUrl: 'app/ELS/aggs.html',
+                     settings: {
+                         nav: 7,
+                         content: '<i class="fa fa-area-chart"></i> Aggs'
                      }
                  }
              }

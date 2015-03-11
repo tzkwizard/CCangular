@@ -122,6 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app\attendee\attendees.js" />
+    <Content Include="app\ELS\aggs.html" />
+    <Content Include="app\ELS\aggs.js" />
+    <Content Include="app\ELS\datasearch.js" />
     <Content Include="app\ELS\els.html" />
     <Content Include="app\ELS\els.js" />
     <Content Include="app\services\client.js" />

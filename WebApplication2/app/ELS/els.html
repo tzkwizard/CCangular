@@ -13,25 +13,19 @@
                 <button class="btn btn-info btn-notext" type="button" data-ng-click="vm.search(searchText)">
                     <i class="fa fa-search"> Search </i>
                 </button>
+                <select ng-model="vm.indices" class="input-medium">
+                    <option selected value="all">all</option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.indexName">{{doc}} </option>
+                </select>
                 <select ng-model="vm.aggName" class="input-medium">
                     <option selected value="all">all</option>
-                    <option selected value="ip">ip</option>
-                    <option selected vaule="username">username</option>
-                    <option selected vaule="response">response</option>
-                    <option selected vaule="message">message</option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.fieldname">{{doc}} </option>
                 </select>
-                <button data-ng-click="vm.changev(vm.aggName)" class="btn btn-info btn-notext" type="button">
-                    <i class="fa fa-pie-chart">Show</i>
-                </button>
                 <input type="text" size="8"
                        data-ng-model="vm.fi"
                        placeholder="  Filter "/>
                 <select ng-model="vm.filterAggName" class="input-medium">
-                    <option selected value="all">all</option>
-                    <option selected value="ip">ip</option>
-                    <option selected vaule="username">username</option>
-                    <option selected vaule="response">response</option>
-                    <option selected vaule="message">message</option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.fieldname">{{doc}} </option>
                 </select>
                 <button data-ng-click="vm.test(searchText)" class="btn btn-info btn-notext" type="button">
                     <i class="fa fa-pie-chart">Test</i>
@@ -42,6 +36,13 @@
                 <option selected value=25>25</option>
                 <option selected vaule=50>50</option>
                 <option selected vaule=100>100</option>
+                <option selected vaule=1000>1000</option>
+            </select>
+            <select ng-model=" vm.paging.pageSize" class="input-medium">
+                <option selected value=10>10</option>
+                <option selected value=25>25</option>
+                <option selected vaule=50>50</option>
+                <option selected vaule=100>100</option>     
             </select>
             <div google-chart="PieChart" data-ng-model="data1" class="bigGraph"></div>
             <div google-chart="BarChart" ng-model="data2" class="mediumGraph"></div>
@@ -66,7 +67,7 @@
                            subtitle="{{vm.total}} / {{vm.total}}"
                            right-text="Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}"></div>
                     </div>
-                  <div data-ng-repeat="doc in vm.hits.buckets" data-ng-style="vm.mystyle">
+                <div data-ng-repeat="doc in vm.hits.buckets" class="fader-animation" data-ng-style="vm.mystyle">
                     <h2>key: {{doc.key}} --- count: {{doc.doc_count}}</h2>
                 </div>
                 </div>
@@ -88,39 +89,21 @@
                 <th class="message" custom-sort order="'index'" sort="sort">Index&nbsp;</th>
             </tr>
             </thead>
-            <tfoot>
-            <td colspan="6">
-                <div class="pagination pull-right">
-                    <ul>
-                        <li ng-class="{disabled: currentPage == 0}">
-                            <a href ng-click="prevPage()">« Prev</a>
-                        </li>
-
-                        <li ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap) "
-                            ng-class="{active: n == currentPage}"
-                            ng-click="setPage()">
-                            <a href ng-bind="n + 1">1</a>
-                        </li>
-
-                        <li ng-class="{disabled: (currentPage) == pagedItems.length - 1}">
-                            <a href ng-click="nextPage()">Next »</a>
-                        </li>
-                    </ul>
-                </div>
-            </td>
-            </tfoot>
 
 
             <tbody>
-            <tr data-ng-repeat="doc in vm.res | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.test(searchText)">
-                <td>{{doc._source.ip}}</td>
-                <td>{{doc._source.username}}</td>
-                <td>{{doc._source.response}}</td>
-                <td>{{doc._source.message}}</td>
-                <td>{{doc._score}}</td>
-                <td>{{doc._index}}</td>
-            </tr>
+                <tr data-ng-repeat="doc in vm.res | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.test()">
+                    <td>{{doc._source.ip}}</td>
+                    <td>{{doc._source.username}}</td>
+                    <td>{{doc._source.response}}</td>
+                    <td>{{doc._source.message}}</td>
+                    <td>{{doc._score}}</td>
+                    <td>{{doc._index}}</td>
+                </tr>
             </tbody>
+
+            
+
         </table>
 
         <div class="widget-foot">
@@ -138,18 +121,11 @@
                         last-text="Last"></pagination>
             <div class="clearfix"></div>
         </div>
-        <div data-ng-repeat="doc in vm.hitSearch" >
-            {{doc.full_name}}
-            {{doc.mapping}}
-       <!--     <input type="button" value="选择" onclick=" f() "/>-->
+        <div data-ng-repeat="doc in vm.t">
+            {{doc}}
         </div>
-        
+
+
+        {{vm.indexName}}
     </section>
 </section>
-<script type="text/javascript">
-    function f(doc) {
-       if (doc.mapping === "")
-           alert(doc.full_name);
-        alert("haha");
-       // return "haha";
-}</Script>
