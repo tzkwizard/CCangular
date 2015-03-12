@@ -4,7 +4,7 @@
     var controllerId = 'els';
 
     angular.module('app')
-        .controller(controllerId, function($scope, $location, common, client, datasearch) {
+        .controller(controllerId, function($log,$scope, $location, $modal, common, client, datasearch) {
 
 
             var vm = this;
@@ -20,18 +20,19 @@
             vm.total = 0;
             vm.mystyle = { 'color': 'blue' };
             vm.aggName = "";
-            vm.type = 'logs';
+            vm.index = 'logs';
+            vm.type = 'log';
             vm.filterAggName = "";
-            vm.pagecount = 100;
-            vm.indices = ['logs', 'logsd'];
+            vm.pagecount = 100;         
             vm.total = "";
-            vm.fieldname = [];
-            vm.indexName = [];
+            vm.fieldsName = [];
+            vm.typesName = [];
+            vm.indicesName = [];
             vm.t = [];
             vm.paging = {
                 currentPage: 1,
                 maxPagesToShow: 5,
-                pageSize: 8
+                pageSize: 25
             };
        
             Object.defineProperty(vm.paging, 'pageCount', {
@@ -55,17 +56,104 @@
             vm.getCurrentPageData = getCurrentPageData;
             vm.getFieldName = getFieldName;
             vm.getIndexName = getIndexName;
-
+            vm.getTypeName = getTypeName;
 
 
             vm.showModal = false;
-            vm.toggleModal = toggleModal;
 
-            function toggleModal() {
-                vm.showModal = !vm.showModal;
-            }
+           vm.popdata = {
+            data: "",
+            field:[]
+           };
+
+
+           vm.showWarning ="";
+
+           vm.dynamic = "";
+           vm.ptype = "";
      
+            //processorbar
+           vm.random = function () {
+               var value = Math.floor((Math.random() * 100) + 1);
+               var ptype;
 
+               if (value < 20) {
+                   ptype = 'idle';
+               } else if (value < 60) {
+                   ptype = 'regular';
+               } else if (value < 85) {
+                   ptype = 'warning';
+               } else {
+                   ptype = 'danger';
+               }
+
+               vm.showWarning = (ptype === 'danger' || ptype === 'warning');
+
+               vm.dynamic = value;
+               vm.ptype = ptype;
+           };
+           vm.random();
+
+
+      //popup
+            vm.items = ['item1', 'item2', 'item3'];
+
+            vm.open = function (doc) {
+
+                vm.popdata.data = doc;
+                vm.popdata.field = vm.fieldsName;
+                var modalInstance = $modal.open({
+                    templateUrl: 'myModalContent.html',
+                    controller: 'ModalInstanceCtrl',
+                   // size: size,
+                    resolve: {
+                        items: function () {
+                            return vm.popdata;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (selectedItem) {
+                    vm.selected = selectedItem;
+                }, function () {
+                    $log.info('Modal dismissed at: ' + new Date());
+                });
+            };
+
+            //date
+            $scope.today = function () {
+                $scope.dt = new Date();
+            };
+            $scope.today();
+
+            $scope.clear = function () {
+                $scope.dt = null;
+            };
+
+            // Disable weekend selection
+            $scope.disabled = function (date, mode) {
+                return (mode === 'day' && (date.getDay() === 0 || date.getDay() === 6));
+            };
+
+            $scope.toggleMin = function () {
+                $scope.minDate = $scope.minDate ? null : new Date();
+            };
+            $scope.toggleMin();
+
+            $scope.open = function ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                $scope.opened = true;
+            };
+
+            $scope.dateOptions = {
+                formatYear: 'yy',
+                startingDay: 1
+            };
+
+            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate','yyyy.MM.dd'];
+            $scope.format = $scope.formats[0];
 
 
 
@@ -104,71 +192,89 @@
                 }, function (err) {
                     log(err.message);
                 });*/
-                client.indices.exists({
-                    index: 'logs'
-                }).then(function (resp) {
-                    vm.hitSearch = resp;
-                }, function (err) {
-                    log(err.message);
-                });
+               
 
-              toastr.info( "\r\n" );
+              toastr.info( "1" );
             }
             
 
             function getIndexName() {               
-                gett();
-                geti();        
-                function gett() {
-                    vm.j = 0;  
-                 vm.x = 'logstash-';
-                 for (vm.i = 0; vm.i < 144; vm.i++) {
-                     vm.y = new Date(2015, 2, 10 + vm.i);
-                     vm.t[vm.j] = vm.x + vm.y.getFullYear() + "." + ('0' + vm.y.getMonth()).slice(-2) + "." + ('0' + vm.y.getDate()).slice(-2);
-                     vm.j++;
-                 }
-             }
-             function geti() {
-                 vm.j = 0;
-                 vm.z = 0;
-                 vm.i = 0;
-                 for (vm.i = 0; vm.i < 144; vm.i++) {
-                     client.indices.exists({
-                         index: vm.t[vm.i]
-                     }).then(function(resp) {
-                         if (resp) {
-                             vm.indexName[vm.j] = vm.t[vm.z];
-                             vm.j++;
-                             log(vm.z);
-                         }
-                         vm.z++;
-                     }, function(err) {
-                         log(err.message);
-                     });
-                    
-                 }
-             }
+            
+                vm.mx = [];
+                client.cluster.state({
+                    flatSettings: true
+
+                }).then(function (resp) {
+                    vm.mm = resp.routing_table.indices;
+                    vm.j = 0;
+                    angular.forEach(vm.mm, function (name) {
+
+                        vm.mx[vm.j] = name.shards;
+                        angular.forEach(vm.mx[vm.j], function (nn) {
+                            vm.indicesName[vm.j] = nn[0].index;
+                        });
+                        vm.j++;
+                    });
+
+                }, function (err) {
+                    log(err.message);
+                });
+
+
+
+
             }
       
-             
-
-            function getFieldName() {
-
-                client.indices.getFieldMapping({
-                    index: 'logs',
-                    type: 'log',
-                    field: '*'
-                }).then(function (resp) {
-                    vm.map = resp.logs.mappings.log;
-                    vm.j = 0;
-                    vm.res2 = [];
-                    angular.forEach(vm.map, function (name) {
-                        if (name.full_name.substring(0, 1) !== '_' && name.full_name !== 'constant_score.filter.exists.field') {
-                            vm.fieldname[vm.j] = name.full_name;
-                            vm.j++;
+            function getTypeName() {
+                if (vm.index === "all"||vm.index==="")
+                    return;
+                vm.typesName = [];
+                client.search({
+                    index: vm.index,
+                    size: vm.pagecount,
+                    body: {
+                        query: {
+                            "match_all": {}
                         }
                     }
-                    );
+                }).then(function (resp) {
+                    vm.map = resp.hits.hits;
+                    angular.forEach(vm.map, function (n) {
+                        if (vm.typesName.indexOf(n._type) === -1) {
+                            vm.typesName.push(n._type);
+                        }
+                    });
+                
+                }, function (err) {
+                    log(err.message);
+                });
+                
+            }
+
+            function getFieldName() {
+                if (vm.type === "all"||vm.type==="")
+                    return;
+                vm.fieldsName = [];
+                client.indices.getFieldMapping({
+                    index: vm.index,
+                    type: vm.type,
+                    field: '*'
+                }).then(function(resp) {
+                    //vm.map = resp.logs.mappings.logs;
+
+                    angular.forEach(resp, function (m) {
+                        vm.map = m.mappings;
+                        angular.forEach(vm.map, function(n) {
+                            vm.j = 0;                           
+                            angular.forEach(n, function(name) {
+                                    if (name.full_name.substring(0, 1) !== '_' && name.full_name !== 'constant_score.filter.exists.field') {
+                                        vm.fieldsName[vm.j] = name.full_name;
+                                        vm.j++;
+                                    }
+                                }
+                            );
+                        });
+                });
                 }, function (err) {
                     log(err.message);
                 });
@@ -178,7 +284,7 @@
            
 
             function activate() {
-                common.activateController([getIndexName(), getFieldName()], controllerId)
+                common.activateController([getIndexName()], controllerId)
                     .then(function () {
                          init();
                         log('Activated ELS search View');
@@ -190,7 +296,7 @@
 
 
             function init() {
-                datasearch.getSampledata(vm.indexName,vm.type, vm.pagecount).then(function (resp) {
+                datasearch.getSampledata(vm.index,vm.type, vm.pagecount).then(function (resp) {
                     vm.hitSearch = resp.hits.hits;
                     vm.total = resp.hits.total < vm.pagecount?resp.hits.total:vm.pagecount;  
                     vm.getCurrentPageData(vm.hitSearch);
@@ -275,7 +381,7 @@
                  vm.searchWithoutFilter(searchText);
                  return;
              }
-             datasearch.basicSearch(vm.indices, vm.type, vm.pagecount, vm.aggName, searchText, vm.filterAggName, vm.fi)
+             datasearch.basicSearch(vm.index, vm.type, vm.pagecount, vm.aggName, searchText, vm.filterAggName, vm.fi)
             .then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
                  vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
@@ -287,7 +393,7 @@
          }
       
          function searchWithoutFilter(searchText) {
-             datasearch.searchWithoutFilter(vm.indices, vm.type, vm.pagecount,vm.aggName ,searchText).then(function (resp) {
+             datasearch.searchWithoutFilter(vm.index, vm.type, vm.pagecount,vm.aggName ,searchText).then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
                  vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
                  vm.getCurrentPageData(vm.hitSearch);
@@ -487,9 +593,75 @@
              dashboard.draw(data);
          }
 
-        
 
+      /*  function temp1() {
+            gett();
+            geti();
+
+            function gett() {
+                vm.j = 0;
+                vm.x = 'logstash-';
+                for (vm.i = 0; vm.i < 144; vm.i++) {
+                    vm.y = new Date(2015, 2, 10 + vm.i);
+                    vm.t[vm.j] = vm.x + vm.y.getFullYear() + "." + ('0' + vm.y.getMonth()).slice(-2) + "." + ('0' + vm.y.getDate()).slice(-2);
+                    vm.j++;
+                }
+            }
+
+            function geti() {
+                vm.j = 0;
+                vm.z = 0;
+                vm.i = 0;
+
+                for (vm.i = 0; vm.i < 144; vm.i++) {
+                    client.indices.exists({
+                        index: vm.t[vm.i]
+                    }).then(function(resp) {
+                        if (resp) {
+                            vm.indexName[vm.j] = vm.t[vm.z];
+                            vm.j++;
+                            log(vm.z);
+                        }
+                        vm.z++;
+                    }, function(err) {
+                        log(err.message);
+                    });
+
+                }
+            }
+        }*/
 
 
     });
+})();
+
+
+
+
+
+
+(function () {
+    'use strict';
+
+    var controllerId = 'ModalInstanceCtrl';
+
+    angular.module('app')
+        .controller(controllerId, function ($scope, $modalInstance, $location, common, items) {
+
+            $scope.title = "Detailed search result";
+            $scope.items = items.data;
+            $scope.field = items.field;
+
+            $scope.selected = {
+                item: $scope.items
+            };
+
+            $scope.ok = function () {
+                $modalInstance.close($scope.selected.item);
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+        });
 })();

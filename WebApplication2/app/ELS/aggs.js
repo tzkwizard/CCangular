@@ -25,7 +25,24 @@
             vm.pagecount = 10;
             vm.indices = ['logs', 'logsd'];
             vm.total = "";
-        vm.fieldname = [];
+        
+
+
+
+            vm.getFieldName = getFieldName;
+            vm.getIndexName = getIndexName;
+            vm.getTypeName = getTypeName;
+
+
+
+            vm.fieldsName = [];
+            vm.typesName = [];
+            vm.indicesName = [];
+            vm.index = 'logs';
+            vm.type = 'log';
+
+
+
           
 
             //function
@@ -36,7 +53,95 @@
             vm.getFieldName = getFieldName;
         
 
+
+
+
+
+
+            function getIndexName() {
+
+                vm.mx = [];
+                client.cluster.state({
+                    flatSettings: true
+
+                }).then(function (resp) {
+                    vm.mm = resp.routing_table.indices;
+                    vm.j = 0;
+                    angular.forEach(vm.mm, function (name) {
+
+                        vm.mx[vm.j] = name.shards;
+                        angular.forEach(vm.mx[vm.j], function (nn) {
+                            vm.indicesName[vm.j] = nn[0].index;
+                        });
+                        vm.j++;
+                    });
+
+                }, function (err) {
+                    log(err.message);
+                });
+
+
+
+
+            }
+
+            function getTypeName() {
+                if (vm.index === "all" || vm.index === "")
+                    return;
+                vm.typesName = [];
+                client.search({
+                    index: vm.index,
+                    size: vm.pagecount,
+                    body: {
+                        query: {
+                            "match_all": {}
+                        }
+                    }
+                }).then(function (resp) {
+                    vm.map = resp.hits.hits;
+                    angular.forEach(vm.map, function (n) {
+                        if (vm.typesName.indexOf(n._type) === -1) {
+                            vm.typesName.push(n._type);
+                        }
+                    });
+
+                }, function (err) {
+                    log(err.message);
+                });
+
+            }
+
             function getFieldName() {
+                if (vm.type === "all" || vm.type === "")
+                    return;
+                vm.fieldsName = [];
+                client.indices.getFieldMapping({
+                    index: vm.index,
+                    type: vm.type,
+                    field: '*'
+                }).then(function (resp) {
+                    //vm.map = resp.logs.mappings.logs;
+
+                    angular.forEach(resp, function (m) {
+                        vm.map = m.mappings;
+                        angular.forEach(vm.map, function (n) {
+                            vm.j = 0;
+                            angular.forEach(n, function (name) {
+                                if (name.full_name.substring(0, 1) !== '_' && name.full_name !== 'constant_score.filter.exists.field') {
+                                    vm.fieldsName[vm.j] = name.full_name;
+                                    vm.j++;
+                                }
+                            }
+                            );
+                        });
+                    });
+                }, function (err) {
+                    log(err.message);
+                });
+
+            }
+
+           /* function getFieldName() {
 
                 client.indices.getFieldMapping({
                     index: 'logs',
@@ -57,14 +162,14 @@
                     log(err.message);
                 });
 
-            }
+            }*/
 
 
 
 
 
             function activate() {
-                common.activateController([getFieldName()], controllerId)
+                common.activateController([getIndexName()], controllerId)
                     .then(function () {
                         log('Activated Aggs search View');
                         google.setOnLoadCallback(drawDashboard);
@@ -75,7 +180,7 @@
 
             function aggShow(aggName) {              
             client.search({
-                index: 'logs',
+                index: vm.index,
                 type: vm.type,
                 body: ejs.Request()
                     .aggregation(ejs.TermsAggregation("agg").field(aggName))

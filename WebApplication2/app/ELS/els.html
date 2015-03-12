@@ -3,129 +3,204 @@
         <div class="container-fluid">
             <div class="row-fluid">
                 <!--<span class="span3">
-                    <input class="input-block-level" data-ng-model="vm.fi" type="text">
-                </span>&nbsp;-->
+                <input class="input-block-level" data-ng-model="vm.fi" type="text">
+            </span>&nbsp;-->
             </div>
             <div class="input-append row-fluid">
-                <input type="text" class="form-control"
-                       data-ng-model="searchText"
-                       placeholder="  Search"/>
-                <button class="btn btn-info btn-notext" type="button" data-ng-click="vm.search(searchText)">
-                    <i class="fa fa-search"> Search </i>
-                </button>
-                <select ng-model="vm.indices" class="input-medium">
+           
+                    <input type="text" class="form-control"
+                           data-ng-model="searchText"
+                           placeholder="  Search"/>
+                    <button class="btn btn-info btn-notext" type="button" data-ng-click="vm.search(searchText)">
+                        <i class="fa fa-search"> Search </i>
+                    </button>
+                
+           
+                <select ng-model="vm.index" class="form-control" data-ng-click="vm.getTypeName()" style="width: 150px">
                     <option selected value="all">all</option>
-                    <option value={{doc}} data-ng-repeat="doc in vm.indexName">{{doc}} </option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.indicesName">{{doc}} </option>
                 </select>
-                <select ng-model="vm.aggName" class="input-medium">
+                <select ng-model="vm.type" class="form-control" data-ng-click="vm.getFieldName()" style="width: 50px">
+                    <option selected value="all"> all</option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.typesName">{{doc}} </option>
+                </select>
+
+                <select ng-model="vm.aggName" class="form-control" style="width: 100px">
                     <option selected value="all">all</option>
-                    <option value={{doc}} data-ng-repeat="doc in vm.fieldname">{{doc}} </option>
+                    <option value={{doc}} data-ng-repeat="doc in vm.fieldsName">{{doc}} </option>
                 </select>
                 <input type="text" size="8"
                        data-ng-model="vm.fi"
                        placeholder="  Filter "/>
-                <select ng-model="vm.filterAggName" class="input-medium">
-                    <option value={{doc}} data-ng-repeat="doc in vm.fieldname">{{doc}} </option>
+                <select ng-model="vm.filterAggName" class="input-medium" style="width: 100px">
+                    <option value={{doc}} data-ng-repeat="doc in vm.fieldsName">{{doc}} </option>
                 </select>
-                <button data-ng-click="vm.test(searchText)" class="btn btn-info btn-notext" type="button">
+                <button data-ng-click="vm.test(searchText)" class="btn btn-info btn-notext " type="button">
                     <i class="fa fa-pie-chart">Test</i>
                 </button>
-            </div>
-            <select ng-model="vm.pagecount" class="input-medium">
-                <option selected value=10>10</option>
-                <option selected value=25>25</option>
-                <option selected vaule=50>50</option>
-                <option selected vaule=100>100</option>
-                <option selected vaule=1000>1000</option>
-            </select>
-            <select ng-model=" vm.paging.pageSize" class="input-medium">
-                <option selected value=10>10</option>
-                <option selected value=25>25</option>
-                <option selected vaule=50>50</option>
-                <option selected vaule=100>100</option>     
-            </select>
-            <div google-chart="PieChart" data-ng-model="data1" class="bigGraph"></div>
-            <div google-chart="BarChart" ng-model="data2" class="mediumGraph"></div>
-            <div google-chart="LineChart" ng-model="data3" class="smallGraph"></div>
-            <div id="dashboard_div">
-                <!--Divs that will hold each control and chart-->
-                <table class="columns">
-                    <tr>
-                        <td>
-                            <div id="filter_div"></div>
-                            <div id="chart_div" class="bigGraph"></div>
-                        </td>
-                        <td>
-                            <div id="chart2"></div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+         </div>
+           
+          
             <div class="row-fluid">
-                  <div class="widget wgreen">
-                      <div data-cc-widget-header title="{{vm.title}}"
-                           subtitle="{{vm.total}} / {{vm.total}}"
-                           right-text="Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}"></div>
+                   <div>            
+                    <h4>Popup</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="input-group">
+                                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="opened" min-date="minDate" max-date="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                </span>
+                                <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
+                            </p>
+                        </div>
+                       
+                        <select ng-model="vm.pagecount" class="input-medium pull-right">
+                            <option value=10>10</option>
+                            <option value=25>25</option>
+                            <option vaule=50>50</option>
+                            <option vaule=100>100</option>
+                            <option selected vaule=1000>1000</option>
+                        </select>
+                        <select ng-model=" vm.paging.pageSize" class="input-medium pull-right">
+                            <option value=10>10</option>
+                            <option selected value=25>25</option>
+                            <option vaule=50>50</option>
+                            <option vaule=100>100</option>
+                        </select>
+                        
+
+                        <div class="btn-group" dropdown is-open="status.isopen">
+                            <button type="button" class="btn btn-primary dropdown-toggle " dropdown-toggle ng-disabled="disabled">
+                                Field<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#">Separated link</a></li>
+                            </ul>
+                        </div>
+
                     </div>
+                    <hr />
+                    <button type="button" class="btn btn-sm btn-info" ng-click="today()">Today</button>
+                    <button type="button" class="btn btn-sm btn-default" ng-click="dt = '2012-12-12'">2012-12-12</button>
+                    <button type="button" class="btn btn-sm btn-danger" ng-click="clear()">Clear</button>
+                    <button type="button" class="btn btn-sm btn-default" ng-click="toggleMin()" tooltip="After today restriction">Min date</button>
+                </div>
+
+
+
+
+
+                <script type="text/ng-template" id="myModalContent.html">
+                    <div class="widget wviolet">
+                        <div data-cc-widget-header title="{{title}}"></div>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            
+                            <li ng-click="selected.item = items._source.ip">{{items._source.ip}}</li>
+                            <li ng-click="selected.item = items._source.username">{{items._source.username}}</li>
+                            <li ng-click="selected.item = items._source.response">{{items._source.response}}</li>
+                            <li ng-click="selected.item = items._source.message">{{items._source.message}}</li>
+                            <li ng-click="selected.item = items._source.ip">{{items._source.ip}}</li>                            
+                                <li ng-repeat="item in items._source" >
+                                    <a ng-click="selected.item = item">{{field}}{{ item|json }}</a>
+
+                                </li>
+</ul>
+                        Selected: <b>{{ selected.item }}</b>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" ng-click="ok()">OK</button>
+                        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+                    </div>
+                </script>
+
+              
+
+
+
+            </div>
+
+            <div class="row-fluid">
+                <div class="widget wgreen">
+                    <div data-cc-widget-header title="{{vm.title}}"
+                         subtitle="{{vm.total}} / {{vm.total}}"
+                         right-text="Page {{vm.paging.currentPage}} of {{vm.paging.pageCount}}"></div>
+                </div>
                 <div data-ng-repeat="doc in vm.hits.buckets" class="fader-animation" data-ng-style="vm.mystyle">
                     <h2>key: {{doc.key}} --- count: {{doc.doc_count}}</h2>
                 </div>
+
+
+                <table class="table table-striped table-condensed table-hover">
+                    <thead>
+
+                        <tr>
+                            <th class="ip" custom-sort order="'ip'" sort="sort">Ip&nbsp;</th>
+                            <th class="username" custom-sort order="'username'" sort="sort">UserName&nbsp;</th>
+                            <th class="response" custom-sort order="'response'" sort="sort">Response&nbsp;</th>
+                            <th class="message" custom-sort order="'message'" sort="sort">Message&nbsp;</th>
+                            <th class="message" custom-sort order="'_score'" sort="sort">_score&nbsp;</th>
+                            <th class="message" custom-sort order="'index'" sort="sort">Index&nbsp;</th>
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+                        <tr data-ng-repeat="doc in vm.res | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.open(doc)">
+                            <td>{{doc._source.ip}}</td>
+                            <td>{{doc._source.username}}</td>
+                            <td>{{doc._source.response}}</td>
+                            <td>{{doc._source.message}}</td>
+                            <td>{{doc._score}}</td>
+                            <td>{{doc._index}}</td>
+                        </tr>
+                    </tbody>
+
+
+
+                </table>
+
+                <div class="widget-foot">
+                    <div class="clearfix"></div>
+                    <pagination boundary-links="true"
+                                total-items="vm.total"
+                                items-per-page="vm.paging.pageSize"
+                                data-ng-model="vm.paging.currentPage"
+                                data-ng-change="vm.pageChanged()"
+                                max-size="vm.paging.maxPagesToShow"
+                                class="pagination-sm"
+                                previous-text="Prev"
+                                next-text="Next"
+                                first-text="First"
+                                last-text="Last"></pagination>
+                    <div class="clearfix"></div>
                 </div>
-        </div>
+
+                <button class="btn btn-sm btn-primary" type="button" ng-click="vm.random()">Randomize</button>
+                <progressbar class="progress-striped active" value="vm.dynamic" type="{{vm.ptype}}">{{vm.ptype}} <i ng-show="showWarning">!!! Watch out !!!</i></progressbar>
+
+                
+            </div>
+           
+      </div>
+
+        <!--  <div data-ng-repeat="doc in vm.t">
+              {{doc}}
+          </div>-->
+        
         <!-- <div data-ng-repeat="doc in vm.hitSearch">
-            {{doc._source.ip}} <br>
+        {{doc._source.ip}} <br>
 
-        </div>-->
-
-        <table class="table table-striped table-condensed table-hover">
-            <thead>
-
-            <tr>
-                <th class="ip" custom-sort order="'ip'" sort="sort">Ip&nbsp;</th>
-                <th class="username" custom-sort order="'username'" sort="sort">UserName&nbsp;</th>
-                <th class="response" custom-sort order="'response'" sort="sort">Response&nbsp;</th>
-                <th class="message" custom-sort order="'message'" sort="sort">Message&nbsp;</th>
-                <th class="message" custom-sort order="'_score'" sort="sort">_score&nbsp;</th>
-                <th class="message" custom-sort order="'index'" sort="sort">Index&nbsp;</th>
-            </tr>
-            </thead>
+       </div>-->
 
 
-            <tbody>
-                <tr data-ng-repeat="doc in vm.res | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.test()">
-                    <td>{{doc._source.ip}}</td>
-                    <td>{{doc._source.username}}</td>
-                    <td>{{doc._source.response}}</td>
-                    <td>{{doc._source.message}}</td>
-                    <td>{{doc._score}}</td>
-                    <td>{{doc._index}}</td>
-                </tr>
-            </tbody>
-
-            
-
-        </table>
-
-        <div class="widget-foot">
-            <div class="clearfix"></div>
-            <pagination boundary-links="true"
-                        total-items="vm.total"
-                        items-per-page="vm.paging.pageSize"
-                        data-ng-model="vm.paging.currentPage"
-                        data-ng-change="vm.pageChanged()"
-                        max-size="vm.paging.maxPagesToShow"
-                        class="pagination-sm"
-                        previous-text="Prev"
-                        next-text="Next"
-                        first-text="First"
-                        last-text="Last"></pagination>
-            <div class="clearfix"></div>
-        </div>
-        <div data-ng-repeat="doc in vm.t">
-            {{doc}}
-        </div>
-
-
-        {{vm.indexName}}
+        {{vm.fieldsName}}
+        {{vm.typesName}}
     </section>
 </section>

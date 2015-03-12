@@ -21,8 +21,8 @@
             }
             );*/
 
-       /*   //TODO get rid of me 
-        $routeProvider.when('/pass', {
+         //TODO get rid of me 
+       /* $routeProvider.when('/pass', {
             templateUrl: 'app/session/sessions.html',
             resolve: {fake:fakeAllow}
             }
@@ -32,7 +32,10 @@
         function fakeAllow($q) {
             var data = { x: 1 };
             var defer = $q.defer();
+            var promise = defer.promise;
+            promise.then(function () { toastr.info("get --"); });
             defer.resolve(data);
+            promise.then(function () { toastr.info("get it"); });
             return defer.promise;
         }
         $routeProvider.when('/fail', {
@@ -81,7 +84,7 @@
                     }
                 }
             }, {
-                url: '/',
+                url: '/admin',
                 config: {
                     title: 'admin',
                     templateUrl: 'app/admin/admin.html',
@@ -138,7 +141,7 @@
              }
               ,
              {
-                 url: '/els',
+                 url: '/',
                  config: {
                      title: 'els',
                      templateUrl: 'app/ELS/els.html',
