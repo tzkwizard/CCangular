@@ -4,24 +4,25 @@
     var controllerId = 'els';
 
     angular.module('app')
-        .controller(controllerId, function($log,$scope, $location, $modal, common, client, datasearch) {
+        .controller(controllerId, function ($injector,$log, $scope, $location, $modal, common, client, datasearch, dataconfig) {
 
 
             var vm = this;
             vm.title = "Elasticsearch";
             //variable
+            $scope.count = 0;
             vm.fi = "";
             var getLogFn = common.logger.getLogFn;
             var log = getLogFn(controllerId);
-            vm.searchText = 'hello';
+            vm.searchText = '';
             vm.hitSearch = "";
             vm.acount = 4;
             vm.hits = "2";
             vm.total = 0;
             vm.mystyle = { 'color': 'blue' };
-            vm.aggName = "";
+            vm.field = "";
             vm.index = 'logs';
-            vm.type = 'log';
+            vm.type = '';
             vm.filterAggName = "";
             vm.pagecount = 100;         
             vm.total = "";
@@ -34,17 +35,18 @@
                 maxPagesToShow: 5,
                 pageSize: 25
             };
-       
+        vm.showSplash = true;
             Object.defineProperty(vm.paging, 'pageCount', {
                 get: function() {
                     return Math.floor(vm.total / vm.paging.pageSize) + 1;
                 }
             });
+            vm.fselect = "";
+
 
             //function
             vm.search = search;
             vm.mSearch = mSearch;
-            vm.changev = changev;
             vm.searchWithoutFilter = searchWithoutFilter;
             vm.filtertemp = filtertemp;
             vm.init = init;
@@ -57,22 +59,119 @@
             vm.getFieldName = getFieldName;
             vm.getIndexName = getIndexName;
             vm.getTypeName = getTypeName;
+            vm.addaddFilter = addFilter;
+            vm.im = 0;
+
+            function test() {
+              /*  client.search({
+                    index: vm.index,
+                    type: vm.type,
+                    size: vm.pagecount,
+                    body: ejs.Request()
+                    //.query(ejs.MatchQuery("message", searchText).zeroTermsQuery("all"))
+                    //.query(ejs.BoolQuery().must(ejs.MatchQuery("message", searchText)).mustNot(ejs.MatchQuery("message", "java")))
+                    //  .query(ejs.BoostingQuery(ejs.MultiMatchQuery(["username", "response", "message", "ip"], searchText), ejs.MatchQuery("message", "java"), 0.2))
+                    //   .query(ejs.CommonTermsQuery("message", searchText).cutoffFrequency(0.01).highFreqOperator("and").minimumShouldMatchLowFreq(2))
+                    //  .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
+                    //.query(ejs.MatchAllQuery())
+                    //.filter(ejs.BoolFilter().must(ejs.TermFilter("message", "dev")).mustNot(ejs.TermFilter("message", "java")))
+                    //.filter(ejs.TermFilter("username","dev"))
+
+                }).then(function (resp) {
+                    vm.hitSearch = resp.hits.hits;
+                    vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
+                    vm.getCurrentPageData(vm.hitSearch);
+                }, function (err) {
+                    log(err.message);
+                });*/
+                var main = document.getElementById('test');
+
+                addFilter();         
+                
+                toastr.info(main.value);
+            }
+
+            function addFilter(i) {
+                
+                var para = document.createElement("p");
+                var node = document.createTextNode("filter:" + vm.im);
+                
+                para.appendChild(node);
+
+                var element = document.getElementById("filter");
+                element.appendChild(para);
+
+              //var main = document.getElementById('filter');
+              var contain = document.createElement('div');
+              contain.setAttribute('id', 'contain');
+              element.appendChild(contain);
+               
+                
+               
+            var input = document.createElement('input');
+            var iname = 'input';
+            input.setAttribute("data-ng-model","vm.fi");
+            input.setAttribute('id', iname);
+            contain.appendChild(input);
+
+           /* var el = angular.element("input");
+            $scope = el.scope();
+            $injector = el.injector();
+                $injector.invoke(function($compile) {
+                    $compile(el)($scope);
+                });*/
 
 
-            vm.showModal = false;
-
-           vm.popdata = {
-            data: "",
-            field:[]
-           };
 
 
+
+            var fselect = document.createElement('select');
+            var sname = 'fselect';
+            input.setAttribute('id', sname);
+            contain.appendChild(fselect);
+           // fselect.setAttribute("data-ng-model", "vm.filterAggName");
+                angular.forEach(vm.fieldsName, function(name) {
+                    var opt = document.createElement('option');
+                   
+                    opt.value = name;
+                    opt.innerHTML = name;
+                    fselect.appendChild(opt);
+                });
+                
+            
+
+            var jselect = document.createElement('select');
+            var jname = 'jselect';
+            input.setAttribute('id', jname);
+            contain.appendChild(jselect);
+
+                vm.j = ['MUST','MUST_NOT','SHOULD'];
+            angular.forEach(vm.j, function (name) {
+                var opt = document.createElement('option');               
+                opt.value = name;
+                opt.innerHTML = name;
+                jselect.appendChild(opt);
+            });
+            jselect.setAttribute("data-ng-model", "vm.condition");
+            var el = angular.element("jselect");
+            $scope = el.scope();
+            $injector = el.injector();
+            $injector.invoke(function ($compile) {
+                $compile(el)($scope);
+            });
+                vm.im++;
+
+            }
+
+
+
+
+
+           //processorbar
            vm.showWarning ="";
-
            vm.dynamic = "";
            vm.ptype = "";
-     
-            //processorbar
+           
            vm.random = function () {
                var value = Math.floor((Math.random() * 100) + 1);
                var ptype;
@@ -95,7 +194,14 @@
            vm.random();
 
 
-      //popup
+            //popup
+
+           vm.showModal = false;
+
+           vm.popdata = {
+               data: "",
+               field: []
+           };
             vm.items = ['item1', 'item2', 'item3'];
 
             vm.open = function (doc) {
@@ -174,121 +280,30 @@
             }
 
 
-            function test(searchText) {
-                /* client.search({
-                    index: vm.indices,
-                    type: 'log',
-                    size: vm.pagecount,
-                    body: ejs.Request()
-                    //.query(ejs.MatchQuery("message", searchText).zeroTermsQuery("all"))
-                    .query(ejs.BoolQuery().must(ejs.MatchQuery("message", searchText)).mustNot(ejs.MatchQuery("message", "java")))
-                    //  .query(ejs.BoostingQuery(ejs.MultiMatchQuery(["username", "response", "message", "ip"], searchText), ejs.MatchQuery("message", "java"), 0.2))
-                    //   .query(ejs.CommonTermsQuery("message", searchText).cutoffFrequency(0.01).highFreqOperator("and").minimumShouldMatchLowFreq(2))
-                     //  .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
-                }).then(function (resp) {
-                    vm.hitSearch = resp.hits.hits;
-                    vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
-                    vm.getCurrentPageData(vm.hitSearch);
-                }, function (err) {
-                    log(err.message);
-                });*/
-               
+           
 
-              toastr.info( "1" );
+            function getIndexName() {
+
+                vm.indicesName = dataconfig.getIndexName();
             }
-            
 
-            function getIndexName() {               
-            
-                vm.mx = [];
-                client.cluster.state({
-                    flatSettings: true
-
-                }).then(function (resp) {
-                    vm.mm = resp.routing_table.indices;
-                    vm.j = 0;
-                    angular.forEach(vm.mm, function (name) {
-
-                        vm.mx[vm.j] = name.shards;
-                        angular.forEach(vm.mx[vm.j], function (nn) {
-                            vm.indicesName[vm.j] = nn[0].index;
-                        });
-                        vm.j++;
-                    });
-
-                }, function (err) {
-                    log(err.message);
-                });
-
-
-
-
-            }
-      
             function getTypeName() {
-                if (vm.index === "all"||vm.index==="")
-                    return;
-                vm.typesName = [];
-                client.search({
-                    index: vm.index,
-                    size: vm.pagecount,
-                    body: {
-                        query: {
-                            "match_all": {}
-                        }
-                    }
-                }).then(function (resp) {
-                    vm.map = resp.hits.hits;
-                    angular.forEach(vm.map, function (n) {
-                        if (vm.typesName.indexOf(n._type) === -1) {
-                            vm.typesName.push(n._type);
-                        }
-                    });
-                
-                }, function (err) {
-                    log(err.message);
-                });
-                
+                vm.typesName = dataconfig.getTypeName(vm.index, vm.pagecount);
             }
 
             function getFieldName() {
-                if (vm.type === "all"||vm.type==="")
-                    return;
-                vm.fieldsName = [];
-                client.indices.getFieldMapping({
-                    index: vm.index,
-                    type: vm.type,
-                    field: '*'
-                }).then(function(resp) {
-                    //vm.map = resp.logs.mappings.logs;
+                vm.fieldsName = dataconfig.getFieldName(vm.index, vm.type);
 
-                    angular.forEach(resp, function (m) {
-                        vm.map = m.mappings;
-                        angular.forEach(vm.map, function(n) {
-                            vm.j = 0;                           
-                            angular.forEach(n, function(name) {
-                                    if (name.full_name.substring(0, 1) !== '_' && name.full_name !== 'constant_score.filter.exists.field') {
-                                        vm.fieldsName[vm.j] = name.full_name;
-                                        vm.j++;
-                                    }
-                                }
-                            );
-                        });
-                });
-                }, function (err) {
-                    log(err.message);
-                });
-       
             }
-
            
 
             function activate() {
                 common.activateController([getIndexName()], controllerId)
                     .then(function () {
-                         init();
+                        init();
+                        vm.showSplash = false;
                         log('Activated ELS search View');
-                        google.setOnLoadCallback(drawDashboard);
+                    
 
                     });
             }
@@ -305,74 +320,17 @@
             }
 
 
-            function changev(aggName) {
-                client.search({
-                    index: 'logs',
-                    type: vm.type,
-                    body: {
-                        "aggs": {
-                            "myagg1": {
-                                "terms": {
-                                    "field": "ip",
-                                    "size": 10
-                                }
-                            },
-                            "myagg2": {
-                                "terms": {
-                                    "field": "username",
-                                    "size": 10
-                                }
-                            },
-                            "myagg3": {
-                                "terms": {
-                                    "field": "response",
-                                    "size": 10
-                                }
-                            },
-                            "myagg4": {
-                                "terms": {
-                                    "field": "message",
-                                     "size":10
-                                }
-                            }
-                        }
-                    }
-                }).then(function(resp) {
-                    //vm.hits = resp.aggregations;
-                    vm.total = resp.hits.total;
-                    switch (aggName) {
-                    case "ip":
-                        vm.hits = resp.aggregations.myagg1;
-                        drawDashboard(resp.aggregations.myagg1);
-                        break;
-                    case "username":
-                        drawDashboard(resp.aggregations.myagg2);
-                        vm.hits = resp.aggregations.myagg2;
-                        break;
-                    case "response":
-                        drawDashboard(resp.aggregations.myagg3);
-                        vm.hits = resp.aggregations.myagg3;
-                        break;
-                    case "message":
-                        drawDashboard(resp.aggregations.myagg4);
-                        vm.hits = resp.aggregations.myagg4;
-                        break;
-
-                    }
-                }, function(err) {
-                    log(err.message);
-                });
-
-            }
+        
 
 
             function search(searchText) {
-                getIndexName();
+                //getIndexName();
                 if (searchText == undefined||searchText==="") {
                     log("input text");
                     init();
+                    return;
                 }
-                if (vm.aggName === "" || vm.aggName === "all") {
+                if (vm.field === "" || vm.field === "all") {
                    // mSearch(searchText); 
                     stringSearch(searchText);
                  return;
@@ -381,7 +339,7 @@
                  vm.searchWithoutFilter(searchText);
                  return;
              }
-             datasearch.basicSearch(vm.index, vm.type, vm.pagecount, vm.aggName, searchText, vm.filterAggName, vm.fi)
+             datasearch.basicSearch(vm.index, vm.type, vm.pagecount, vm.field, searchText, vm.filterAggName, vm.fi)
             .then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
                  vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
@@ -393,7 +351,7 @@
          }
       
          function searchWithoutFilter(searchText) {
-             datasearch.searchWithoutFilter(vm.index, vm.type, vm.pagecount,vm.aggName ,searchText).then(function (resp) {
+             datasearch.searchWithoutFilter(vm.index, vm.type, vm.pagecount,vm.field ,searchText).then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
                  vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;
                  vm.getCurrentPageData(vm.hitSearch);
@@ -527,110 +485,7 @@
              }
          });
 
- 
-
-         function drawDashboard(agg) {
-     
-             // Create our data table.
-             /*var data = google.visualization.arrayToDataTable([
-               ['Key', 'Number'],
-               [vm.hits.myagg3.buckets[0].key, vm.hits.myagg3.buckets[0].doc_count],
-               [vm.hits.myagg3.buckets[1].key, vm.hits.myagg3.buckets[1].doc_count],
-               [vm.hits.myagg3.buckets[2].key, vm.hits.myagg3.buckets[2].doc_count],
-               [vm.hits.myagg3.buckets[3].key, vm.hits.myagg3.buckets[3].doc_count],
-               [vm.hits.myagg3.buckets[4].key, vm.hits.myagg3.buckets[4].doc_count]
-             ]);*/
-           
-             var data = new google.visualization.DataTable();
-             data.addColumn('string', 'key');
-             data.addColumn('number', 'Number');
-             for (var i = 0; i < agg.buckets.length; i++) {
-                 data.addRow([agg.buckets[i].key.toString(), agg.buckets[i].doc_count]);
-                 
-             }        
-             // Create a dashboard.
-             var dashboard = new google.visualization.Dashboard(
-                 document.getElementById('dashboard_div'));
-
-             // Create a range slider, passing some options
-             var donutRangeSlider = new google.visualization.ControlWrapper({
-                 'controlType': 'NumberRangeFilter',
-                 'containerId': 'filter_div',
-                 'options': {
-                     'filterColumnLabel': 'Number'
-                 }
-             });
-
-             // Create a pie chart, passing some options
-             var pieChart = new google.visualization.ChartWrapper({
-                 'chartType': 'PieChart',
-                 'containerId': 'chart_div',
-                 'options': {
-                     'width': 800,
-                     'height': 800,
-                     'pieSliceText': 'value',
-                     'legend': 'right',
-                     is3D: true
-                 }
-             });
-
-             //table
-
-             var table = new google.visualization.ChartWrapper({
-                 'chartType': 'Table',
-                 'containerId': 'chart2',
-                 'options': {
-                     'width': '300px'
-                 }
-             });
-             
-             // Establish dependencies, declaring that 'filter' drives 'pieChart',
-             // so that the pie chart will only display entries that are let through
-             // given the chosen slider range.
-             dashboard.bind(donutRangeSlider, [pieChart,table]);
-
-             // Draw the dashboard.
-             dashboard.draw(data);
-         }
-
-
-      /*  function temp1() {
-            gett();
-            geti();
-
-            function gett() {
-                vm.j = 0;
-                vm.x = 'logstash-';
-                for (vm.i = 0; vm.i < 144; vm.i++) {
-                    vm.y = new Date(2015, 2, 10 + vm.i);
-                    vm.t[vm.j] = vm.x + vm.y.getFullYear() + "." + ('0' + vm.y.getMonth()).slice(-2) + "." + ('0' + vm.y.getDate()).slice(-2);
-                    vm.j++;
-                }
-            }
-
-            function geti() {
-                vm.j = 0;
-                vm.z = 0;
-                vm.i = 0;
-
-                for (vm.i = 0; vm.i < 144; vm.i++) {
-                    client.indices.exists({
-                        index: vm.t[vm.i]
-                    }).then(function(resp) {
-                        if (resp) {
-                            vm.indexName[vm.j] = vm.t[vm.z];
-                            vm.j++;
-                            log(vm.z);
-                        }
-                        vm.z++;
-                    }, function(err) {
-                        log(err.message);
-                    });
-
-                }
-            }
-        }*/
-
+    
 
     });
 })();
@@ -665,3 +520,42 @@
             };
         });
 })();
+
+
+
+/*  function temp1() {
+           gett();
+           geti();
+
+           function gett() {
+               vm.j = 0;
+               vm.x = 'logstash-';
+               for (vm.i = 0; vm.i < 144; vm.i++) {
+                   vm.y = new Date(2015, 2, 10 + vm.i);
+                   vm.t[vm.j] = vm.x + vm.y.getFullYear() + "." + ('0' + vm.y.getMonth()).slice(-2) + "." + ('0' + vm.y.getDate()).slice(-2);
+                   vm.j++;
+               }
+           }
+
+           function geti() {
+               vm.j = 0;
+               vm.z = 0;
+               vm.i = 0;
+
+               for (vm.i = 0; vm.i < 144; vm.i++) {
+                   client.indices.exists({
+                       index: vm.t[vm.i]
+                   }).then(function(resp) {
+                       if (resp) {
+                           vm.indexName[vm.j] = vm.t[vm.z];
+                           vm.j++;
+                           log(vm.z);
+                       }
+                       vm.z++;
+                   }, function(err) {
+                       log(err.message);
+                   });
+
+               }
+           }
+       }*/

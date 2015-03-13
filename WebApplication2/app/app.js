@@ -1,11 +1,11 @@
 ﻿(function () {
 
-    google.setOnLoadCallback(function () {
+   /* google.setOnLoadCallback(function () {
         angular.bootstrap(document.body, ['app']);
-    });
-    google.load('visualization', '1', { packages: ['corechart'] });
+    });*/
+   
     'use strict';
-    
+    google.load('visualization', '1', { packages: ['corechart', 'controls', 'table'] });
     var app = angular.module('app', [
         // Angular modules 
         'ngAnimate',        // animations
@@ -30,5 +30,7 @@
         // Include $route to kick start the router.
       // datacontext.prime();
         routeMediator.setRoutingHandlers();
+
+
     }]);
 })();

@@ -1,27 +1,67 @@
 ﻿(function () {
     'use strict';
 
-    var serviceId = 'datasearch';
-    angular.module('app').factory(serviceId, ['common', 'client', datacontext]);
+    var serviceId = 'dataconfig';
+    angular.module('app').factory(serviceId, ['common', 'client', dataconfig]);
 
-    function datacontext(common, client) {
+    function dataconfig(common, client) {
 
         var vm = this;
         vm.typesName = [];
         var getLogFn = common.logger.getLogFn;
         var log = getLogFn(serviceId);
-        var service = {
-            getSampledata: getSampledata,
-            stringSearch: stringSearch,
-            searchWithoutFilter: searchWithoutFilter,
-            basicSearch: basicSearch,
+        var service = {         
             getIndexName: getIndexName,
             getTypeName: getTypeName,
-            getFieldName: getFieldName
+            getFieldName: getFieldName,
+            createContainer: createContainer
         }
         return service;
-        
-        
+
+        function createContainer(aggName) {
+            var main = document.getElementById('div2');
+            var contain = document.createElement('div');
+            contain.setAttribute('id', 'contain');
+            main.appendChild(contain);
+
+
+
+
+            var diva = document.createElement('div');
+            var dashName = 'dash' + aggName;
+            diva.setAttribute('id', dashName);
+            contain.appendChild(diva);
+
+            var dash = document.getElementById(dashName);
+            var tb = document.createElement('table');
+            var tbname = 'table1';
+            tb.setAttribute('id', tbname);
+            dash.appendChild(tb);
+
+            var table = document.getElementById(tbname);
+            var row = table.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+
+
+
+            //var dash = document.getElementById(dashName);
+            var divb = document.createElement('div');
+            var rangeName = 'range' + aggName;
+            divb.setAttribute('id', rangeName);
+            cell1.appendChild(divb);
+
+            var divc = document.createElement('div');
+            var barName = 'bar' + aggName;
+            divc.setAttribute('id', barName);
+            cell1.appendChild(divc);
+
+
+            var divd = document.createElement('div');
+            var tableName = 'table' + aggName;
+            divd.setAttribute('id', tableName);
+            cell2.appendChild(divd);
+        }
 
         function getIndexName() {
             vm.indicesName = [];
@@ -46,7 +86,7 @@
             });
             return vm.indicesName;
         }
-        function getTypeName(index,pagecount) {
+        function getTypeName(index, pagecount) {
             if (index === "all" || index === "")
                 return "";
             vm.typesName = [];
@@ -72,8 +112,8 @@
             return vm.typesName;
         }
 
-        function getFieldName(index,type) {
-            if (type === "all" || type === "" || vm.typesName.indexOf(type)===-1)
+        function getFieldName(index, type) {
+            if (type === "all" || type === "" || vm.typesName.indexOf(type) === -1)
                 return "";
             vm.fieldsName = [];
             client.indices.getFieldMapping({
@@ -104,53 +144,7 @@
 
 
 
-        function getSampledata(indices,type,pagecount) {
-            return client.search({
-                index: indices,
-                type: type,
-                size: pagecount,
-                body: {
-                    query: {
-                        "match_all": {}
-                    }
-                }
-            }
-               );
-        }
-
-
-        function stringSearch(indices, type, pagecount,searchText) {
-          return  client.search({
-                index: indices,
-                type:  type,
-                size:  pagecount,
-                body: ejs.Request()
-                    .query(ejs.QueryStringQuery(searchText))
-            });
-        }
-
-        function searchWithoutFilter(indices, type, pagecount,field, searchText) {
-            return client.search({
-                index: indices,
-                type: type,
-                size: pagecount,
-                body: ejs.Request()
-                    .query(ejs.MatchQuery(field, searchText))
-            });
-        }
-
-        function basicSearch(indices, type, pagecount, field, searchText, filterField, filter) {
-            return client.search({
-                index: indices,
-                type: type,
-                size: pagecount,
-                body: ejs.Request()
-                    .query(ejs.MatchQuery(field, searchText))
-                    .filter(ejs.TermFilter(filterField, filter))
-
-            });
-        }
-
+      
 
     }
 })();

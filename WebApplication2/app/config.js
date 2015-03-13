@@ -39,7 +39,7 @@
 
     var config = {
         appErrorPrefix: '[CC Error] ', //Configure the exceptionHandler decorator
-        docTitle: 'CC: ',
+        docTitle: 'Elasticsearch:',
         events: events,
         imageSettings:imageSettings,
         remoteServiceName: remoteServiceName,

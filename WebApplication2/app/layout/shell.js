@@ -48,7 +48,7 @@
 
        /// $rootScope.$on('$routeChangeStart',
        //     function (event, next, current) { toggleSpinner(true); }
-       // );
+       //);
         
         $rootScope.$on(events.controllerActivateSuccess,
             function (data) { toggleSpinner(false); }

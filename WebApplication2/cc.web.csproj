@@ -124,10 +124,11 @@
     <Content Include="app\attendee\attendees.js" />
     <Content Include="app\ELS\aggs.html" />
     <Content Include="app\ELS\aggs.js" />
+    <Content Include="app\ELS\dataconfig.js" />
     <Content Include="app\ELS\datasearch.js" />
     <Content Include="app\ELS\els.html" />
     <Content Include="app\ELS\els.js" />
-    <Content Include="app\services\client.js" />
+    <Content Include="app\ELS\client.js" />
     <Content Include="app\services\entityManagerFactory.js" />
     <Content Include="app\services\model.js" />
     <Content Include="app\services\repository\repositories.js" />
@@ -291,7 +292,6 @@
     <Content Include="content\images\photos\unknown_person.jpg" />
     <Content Include="content\images\photos\ward_bell.jpg" />
     <Content Include="content\styles.css" />
-    <Content Include="favicon.ico" />
     <Content Include="index.html" />
     <Content Include="Scripts\angular-mocks.js" />
     <Content Include="Scripts\breeze.saveErrorExtensions.js" />
@@ -309,6 +309,7 @@
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Scripts\ui-bootstrap-tpls-0.10.0.js" />
     <Content Include="Scripts\ui-bootstrap-tpls-0.10.0.min.js" />
+    <Content Include="sword.ico" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

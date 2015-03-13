@@ -5,7 +5,48 @@
 
    
 
+    app.directive("addbuttonsbutton", function () {
+        return {
+            restrict: "E",
+            template: "<button addbuttons>Click to add buttons</button>"
+        }
+    });
 
+    //Directive for adding buttons on click that show an alert on click
+    app.directive("addbuttons", function ($compile) {
+        return function (scope, element, attrs) {
+            element.bind("click", function () {
+                scope.count++;
+                
+                angular.element(document.getElementById('space-for-buttons')).
+                   append($compile( "<input id='tt'"+"type='text'" +"size='8'"+
+                   "data-ng-model='vm.fi'"+
+                   "placeholder='  Filter '" + "/>")(scope));
+                angular.element(document.getElementById('space-for-buttons')).
+                    append($compile("<select id='test2''" +"ng-model='vm.filterAggName''"+ "class='input-medium'" +"style='width: 100px'"+">"+
+                "<option value={{doc}}"+"data-ng-repeat='doc in vm.fieldsName'"+">"+"{{doc}}"+"</option"+">"+
+            "</select"+">")(scope));
+                angular.element(document.getElementById('space-for-buttons')).
+                  append($compile( "<select ng-model=' vm.condition'"+">"+
+                "<option selected value='MUST'"+">"+"MUST"+"</option"+">"+
+                "<option vaule='MUST_NOT'"+">"+"MUST_NOT"+"</option"+">"+
+                "<option vaule='SHOULD'"+">"+"SHOULD"+"</option"+">"+
+                "</select"+">")(scope));
+
+                
+            });
+        };
+    });
+
+    //Directive for showing an alert on click
+    app.directive("alert", function () {
+        return function (scope, element, attrs) {
+            element.bind("click", function () {
+                console.log(attrs);
+                alert("This is alert #" + attrs.alert);
+            });
+        };
+    });
 
 
 
