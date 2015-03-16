@@ -139,14 +139,52 @@
             });
         }
 
-        function basicSearch(indices, type, pagecount, field, searchText, filterField, filter) {
+        function basicSearch(indices, type, pagecount, field, searchText, filterField, filter,condition) {
+            
+
+            if (field === "" || field === "all") {
+                // mSearch(searchText); 
+                return stringSearch(indices, type, pagecount, searchText);
+                
+            }
+            if (filter === "" || filterField === "" || filterField === "all") {
+                return searchWithoutFilter(indices, type, pagecount, field, searchText);
+            }
+
+            var fmust;
+            var fmusttrue = ejs.TermFilter(filterField, filter);
+            var fmustfalse = ejs.NotFilter(ejs.TermFilter(filterField, ""));
+            var fnotmust;        
+            var fnotmustture = ejs.TermFilter(filterField, filter);
+            var fnotmustfalse = ejs.TermFilter(filterField, "");
+            var fshould;
+            var fshouldtrue = ejs.TermFilter(filterField, filter);
+            var fshouldfalse = ejs.NotFilter(ejs.TermFilter(filterField, ""));
+
+            if (condition === "MUST") {
+                fmust = fmusttrue;
+                fnotmust = fnotmustfalse;
+                fshould = fshouldfalse;
+            }
+            else if (condition === "MUST_NOT") {
+                fmust = fmustfalse;
+                fnotmust = fnotmustture;
+                fshould = fshouldfalse;
+            } else {
+                fmust = fmustfalse;
+                fnotmust = fnotmustfalse;
+                fshould = fshouldtrue;
+            }
+
             return client.search({
                 index: indices,
                 type: type,
                 size: pagecount,
                 body: ejs.Request()
                     .query(ejs.MatchQuery(field, searchText))
-                    .filter(ejs.TermFilter(filterField, filter))
+                    //.filter(ejs.TermFilter(filterField, filter))
+                    //.filter(ejs.BoolFilter().mustNot(mmm))
+                    .filter(ejs.BoolFilter().must(fmust).mustNot(fnotmust).should(fshould))
 
             });
         }

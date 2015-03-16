@@ -23,19 +23,19 @@
         <button class="btn btn-large btn-info btn-notext" type="button" data-ng-click="vm.search(searchText)">
             <i class="fa fa-search"> Search </i>
         </button>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      
 
-        <select ng-model="vm.index" class="form-control" data-ng-click="vm.getTypeName()" style="width: 160px">          
+        <select ng-model="vm.index" class="form-control" data-ng-click="vm.getTypeName()" style="width: 120px">          
             <option value="all">all</option>
             <option value={{doc}} data-ng-repeat="doc in vm.indicesName">{{doc}} </option>
         </select>
-        <select ng-model="vm.type" class="form-control" data-ng-click="vm.getFieldName()" style="width: 160px">
+        <select ng-model="vm.type" class="form-control" data-ng-click="vm.getFieldName()" style="width: 120px">
             <option value="" disabled selected>Select your Type</option>
             <option value="all"> all</option>
             <option value={{doc}} data-ng-repeat="doc in vm.typesName">{{doc}} </option>
         </select>
 
-        <select ng-model="vm.field" class="form-control" style="width: 160px">
+        <select ng-model="vm.field" class="form-control" style="width: 120px">
             <option value="" disabled selected>Select your Field</option>
             <option value="all">all</option>
             <option value={{doc}} data-ng-repeat="doc in vm.fieldsName">{{doc}} </option>
@@ -43,13 +43,24 @@
         </div>
     <div class="input-append row-fluid">
         <div>
-            <div class="col-md-6 pull-right">
+            <div class="col-md-5 pull-right">
                 <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dt" is-open="opened" min-date="minDate" max-date="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                    <input type="text" class="form-control" datepicker-popup="{{vm.format}}" ng-model="vm.st"
+                           is-open="vm.timeopened" min-date="vm.minDate" max-date="'2015-06-22'" datepicker-options="vm.dateOptions"
+                           date-disabled="vm.disabled(date, mode)" ng-required="true" close-text="Close" placeholder="  start date" />
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                        <button type="button" class="btn btn-default" ng-click="vm.timeopen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                     </span>
-                    <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
+                    
+                    <input type="text" class="form-control" datepicker-popup="{{vm.format}}" ng-model="vm.ft"
+                           is-open="vm.ftimeopened" min-date="vm.minDate" max-date="'2015-06-22'" datepicker-options="vm.dateOptions"
+                           date-disabled="vm.disabled(date, mode)" ng-required="true" close-text="Close" placeholder="  end date" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="vm.ftimeopen($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                    </span>
+
+
+                    <select class="form-control" ng-model="vm.format" ng-options="f for f in vm.formats"><option></option></select>
                 </p>
             </div>
 
@@ -73,7 +84,7 @@
             <select id="test" ng-model="vm.filterAggName" class="input-medium" style="width: 100px">
                 <option value={{doc}} data-ng-repeat="doc in vm.fieldsName">{{doc}} </option>
             </select>
-            <select ng-model=" vm.condition" >
+            <select ng-model=" vm.condition" >      
                 <option selected value='MUST'>MUST</option>
                 <option vaule='MUST_NOT'>MUST_NOT</option>
                 <option vaule='SHOULD'>SHOULD</option>
@@ -106,10 +117,10 @@
                     <option vaule=50>50</option>
                     <option vaule=100>100</option>
                 </select>
-                <button type="button" class="btn btn-sm btn-default pull-right" ng-click="toggleMin()" tooltip="After today restriction">Min date</button>
-                <button type="button" class="btn btn-sm btn-danger pull-right" ng-click="clear()">Clear</button>
-                <button type="button" class="btn btn-sm btn-default pull-right" ng-click="dt = '2012-12-12'">2012-12-12</button>
-                <button type="button" class="btn btn-sm btn-info pull-right" ng-click="today()">Today</button>
+                <button type="button" class="btn btn-sm btn-default pull-right" ng-click="vm.toggleMin()" tooltip="After today restriction">Min date</button>
+                <button type="button" class="btn btn-sm btn-danger pull-right" ng-click="vm.clear()">Clear</button>
+                <button type="button" class="btn btn-sm btn-default pull-right" ng-click="vm.dt = '2012-12-12'">2012-12-12</button>
+                <button type="button" class="btn btn-sm btn-info pull-right" ng-click="vm.today()">Today</button>
 
             </div>
             <br><br>
@@ -164,18 +175,18 @@
                 <thead>
 
                     <tr>
-                        <th class="ip" custom-sort order="'ip'" sort="sort">Ip&nbsp;</th>
-                        <th class="username" custom-sort order="'username'" sort="sort">UserName&nbsp;</th>
-                        <th class="response" custom-sort order="'response'" sort="sort">Response&nbsp;</th>
-                        <th class="message" custom-sort order="'message'" sort="sort">Message&nbsp;</th>
-                        <th class="message" custom-sort order="'_score'" sort="sort">_score&nbsp;</th>
-                        <th class="message" custom-sort order="'index'" sort="sort">Index&nbsp;</th>
+                        <th class="ip" data-ng-click="predicate = '_source.ip'; reverse=!reverse">Ip&nbsp;</th>
+                        <th class="username" data-ng-click="predicate = '_source.username'; reverse=!reverse">UserName&nbsp;</th>
+                        <th class="response" data-ng-click="predicate = '_source.response'; reverse=!reverse">Response&nbsp;</th>
+                        <th class="message" data-ng-click="predicate = '_source.message'; reverse=!reverse">Message&nbsp;</th>
+                        <th class="message" data-ng-click="predicate = '_score'; reverse=!reverse">_score&nbsp;</th>
+                        <th class="message" data-ng-click="predicate = '_index'; reverse=!reverse">Index&nbsp;</th>
                     </tr>
                 </thead>
 
 
                 <tbody>
-                    <tr class="fader-animation" data-ng-repeat="doc in vm.res | orderBy:sort.sortingOrder:sort.reverse" data-ng-click="vm.open(doc)">
+                    <tr class="fader-animation" data-ng-repeat="doc in vm.res| orderBy:predicate:reverse" data-ng-click="vm.open(doc)">
                         <td>{{doc._source.ip}}</td>
                         <td>{{doc._source.username}}</td>
                         <td>{{doc._source.response}}</td>
@@ -185,9 +196,16 @@
                     </tr>
                 </tbody>
 
-
-
             </table>
+
+
+
+
+
+
+
+
+
 
             <div class="widget-foot">
                 <div class="clearfix"></div>
@@ -212,7 +230,7 @@
         </div>
 
     </div>
-
+  
 <!-- <div data-ng-repeat="doc in vm.t">
     {{doc}}
 </div>-->
@@ -222,6 +240,7 @@
 
 </div>-->
 
-{{vm.fselect}}
+    {{vm.st}}
+    {{vm.ft}}
 </section>
 </section>

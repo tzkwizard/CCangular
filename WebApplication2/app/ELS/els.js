@@ -4,7 +4,7 @@
     var controllerId = 'els';
 
     angular.module('app')
-        .controller(controllerId, function ($injector,$log, $scope, $location, $modal, common, client, datasearch, dataconfig) {
+        .controller(controllerId, function ($filter,$injector,$log, $scope, $location, $modal, common, client, datasearch, dataconfig) {
 
 
             var vm = this;
@@ -30,6 +30,10 @@
             vm.typesName = [];
             vm.indicesName = [];
             vm.t = [];
+            
+
+
+
             vm.paging = {
                 currentPage: 1,
                 maxPagesToShow: 5,
@@ -53,7 +57,7 @@
             vm.test = test;
             vm.stringSearch = stringSearch;
             activate();
-
+            vm.today = today;
             vm.pageChanged = pageChanged;
             vm.getCurrentPageData = getCurrentPageData;
             vm.getFieldName = getFieldName;
@@ -62,10 +66,42 @@
             vm.addaddFilter = addFilter;
             vm.im = 0;
 
+
+
+
+
+
+           
+            $scope.predicate = '_source.response';
+
+
+
+
+
             function test() {
-              /*  client.search({
-                    index: vm.index,
-                    type: vm.type,
+
+
+
+
+                if (vm.ft === "" || vm.ft === undefined) {
+                    log("1");
+                    
+                    vm.ft = new Date();
+                    return;
+                }
+                if (vm.st === "" || vm.st === undefined) {
+                    log("2");
+                    return;
+                }
+                if (vm.ft < vm.st) {
+                    log("3");
+                    vm.st = "";
+                    return;
+                }
+
+                 client.search({
+                    index: vm.indicesName,
+                    type: 'logs',
                     size: vm.pagecount,
                     body: ejs.Request()
                     //.query(ejs.MatchQuery("message", searchText).zeroTermsQuery("all"))
@@ -73,9 +109,16 @@
                     //  .query(ejs.BoostingQuery(ejs.MultiMatchQuery(["username", "response", "message", "ip"], searchText), ejs.MatchQuery("message", "java"), 0.2))
                     //   .query(ejs.CommonTermsQuery("message", searchText).cutoffFrequency(0.01).highFreqOperator("and").minimumShouldMatchLowFreq(2))
                     //  .query(ejs.RangeQuery("ip").gte("19.18.200.201").lte("19.18.200.204"))
-                    //.query(ejs.MatchAllQuery())
+                      //.query(ejs.MatchAllQuery())
                     //.filter(ejs.BoolFilter().must(ejs.TermFilter("message", "dev")).mustNot(ejs.TermFilter("message", "java")))
-                    //.filter(ejs.TermFilter("username","dev"))
+                     //.filter(ejs.TermFilter("username","dev"))
+                     .filter(ejs.RangeFilter("@timestamp").lte(vm.ft).gte(vm.st))
+/*
+                     .query(ejs.DisMaxQuery()
+                        .queries(ejs.TermQuery('username', 'dev'))
+                        .queries(ejs.TermQuery('message', 'java'))
+                        )*/
+
 
                 }).then(function (resp) {
                     vm.hitSearch = resp.hits.hits;
@@ -83,12 +126,14 @@
                     vm.getCurrentPageData(vm.hitSearch);
                 }, function (err) {
                     log(err.message);
-                });*/
-                var main = document.getElementById('test');
+                });
+                // var t1 = document.getElementById('jselect');
+                // var t2 = document.getElementById('fselect');
+                // var t3 = document.getElementById('input');
 
-                addFilter();         
+               // addFilter();         
                 
-                toastr.info(main.value);
+              //  toastr.info(t1.value+t2.value+t3.value);
             }
 
             function addFilter(i) {
@@ -114,21 +159,39 @@
             input.setAttribute('id', iname);
             contain.appendChild(input);
 
-           /* var el = angular.element("input");
+         
+
+            var xx = document.getElementById(iname);
+            var el = angular.element(xx);
             $scope = el.scope();
             $injector = el.injector();
                 $injector.invoke(function($compile) {
                     $compile(el)($scope);
-                });*/
+                });
 
+/*
+              var $scope = angular.element(el).scope();
+                $scope.thing = newVal;
+                $scope.$apply(); //tell angular to check dirty bindings again
+                }*/
 
 
 
 
             var fselect = document.createElement('select');
             var sname = 'fselect';
-            input.setAttribute('id', sname);
+            fselect.setAttribute('id', sname);
+            fselect.setAttribute("data-ng-model", "vm.filterAggName");
             contain.appendChild(fselect);
+
+            var xy = document.getElementById(sname);
+            var eld = angular.element(xy);
+            $scope = eld.scope();
+            $injector = eld.injector();
+            $injector.invoke(function ($compile) {
+                $compile(eld)($scope);
+            });
+
            // fselect.setAttribute("data-ng-model", "vm.filterAggName");
                 angular.forEach(vm.fieldsName, function(name) {
                     var opt = document.createElement('option');
@@ -142,7 +205,7 @@
 
             var jselect = document.createElement('select');
             var jname = 'jselect';
-            input.setAttribute('id', jname);
+            jselect.setAttribute('id', jname);
             contain.appendChild(jselect);
 
                 vm.j = ['MUST','MUST_NOT','SHOULD'];
@@ -152,13 +215,14 @@
                 opt.innerHTML = name;
                 jselect.appendChild(opt);
             });
-            jselect.setAttribute("data-ng-model", "vm.condition");
-            var el = angular.element("jselect");
+            //jselect.setAttribute("data-ng-model", "vm.condition");
+
+         /*   var el = angular.element("jselect");
             $scope = el.scope();
             $injector = el.injector();
             $injector.invoke(function ($compile) {
                 $compile(el)($scope);
-            });
+            });*/
                 vm.im++;
 
             }
@@ -227,39 +291,56 @@
             };
 
             //date
-            $scope.today = function () {
-                $scope.dt = new Date();
-            };
-            $scope.today();
 
-            $scope.clear = function () {
-                $scope.dt = null;
+            vm.ft = "";
+            vm.st = "";
+            function today() {
+                vm.tempd = new Date();
+                vm.dt=$filter('date')(vm.tempd, "yyyy.MM.dd");
+            }
+
+            /*vm.today = function () {
+                vm.dt = new Date();
+            
+            };*/
+           vm.today();
+
+            vm.clear = function () {
+                vm.st = null;
             };
 
             // Disable weekend selection
-            $scope.disabled = function (date, mode) {
-                return (mode === 'day' && (date.getDay() === 0 || date.getDay() === 6));
+            vm.disabled = function (date, mode) {
+                //return (mode === 'day' && (date.getDay() === 0 || date.getDay() === 6));
             };
-
-            $scope.toggleMin = function () {
-                $scope.minDate = $scope.minDate ? null : new Date();
+            vm.minDate = true;
+            vm.toggleMin = function () {
+                vm.minDate = vm.minDate ? null : new Date();
             };
-            $scope.toggleMin();
+            vm.toggleMin();
 
-            $scope.open = function ($event) {
+            vm.timeopen = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
 
-                $scope.opened = true;
+                vm.timeopened = true;
             };
 
-            $scope.dateOptions = {
+            vm.ftimeopen = function ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+
+                vm.ftimeopened = true;
+            };
+
+
+            vm.dateOptions = {
                 formatYear: 'yy',
                 startingDay: 1
             };
 
-            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate','yyyy.MM.dd'];
-            $scope.format = $scope.formats[0];
+            vm.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate','yyyy.MM.dd'];
+            vm.format = vm.formats[4];
 
 
 
@@ -289,7 +370,7 @@
 
             function getTypeName() {
                 vm.typesName = dataconfig.getTypeName(vm.index, vm.pagecount);
-            }
+            }   
 
             function getFieldName() {
                 vm.fieldsName = dataconfig.getFieldName(vm.index, vm.type);
@@ -330,7 +411,7 @@
                     init();
                     return;
                 }
-                if (vm.field === "" || vm.field === "all") {
+              /*  if (vm.field === "" || vm.field === "all") {
                    // mSearch(searchText); 
                     stringSearch(searchText);
                  return;
@@ -338,8 +419,8 @@
              if (vm.fi === ""||vm.filterAggName===""||vm.filterAggName==="all") {
                  vm.searchWithoutFilter(searchText);
                  return;
-             }
-             datasearch.basicSearch(vm.index, vm.type, vm.pagecount, vm.field, searchText, vm.filterAggName, vm.fi)
+             }*/
+                datasearch.basicSearch(vm.index, vm.type, vm.pagecount, vm.field, searchText, vm.filterAggName, vm.fi, vm.condition)
             .then(function (resp) {
                  vm.hitSearch = resp.hits.hits;
                  vm.total = resp.hits.total < vm.pagecount ? resp.hits.total : vm.pagecount;

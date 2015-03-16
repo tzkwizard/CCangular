@@ -52,7 +52,6 @@
 
 
 
-
     var googleChart = googleChart || angular.module("google-chart", []);
 
     googleChart.directive("googleChart", function () {
